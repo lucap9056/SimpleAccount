@@ -6,11 +6,9 @@
 	import Index from "./UI/Index.svelte";
 	import { Routes, route, router } from "./Router";
 	import Status from "./Status";
-
 	Status.Login().then((login) => {
 		switch (true) {
 			case $route.INDEX:
-			case $route.EDIT:
 				if (login) return;
 				router.Set(Routes.LOGIN);
 				break;

@@ -4,12 +4,7 @@
   import Translations from "../Translations";
   import Loading from "../Loading/Main";
   import { router, Routes } from "../Router";
-  import { login } from "../Status";
   import Validate from "../ValidateInput";
-
-  if ($login) {
-    router.Set(Routes.INDEX);
-  }
 
   let username = "";
   let email = "";

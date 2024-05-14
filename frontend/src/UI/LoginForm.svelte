@@ -4,13 +4,7 @@
     import Translations from "../Translations";
     import { Post, Path } from "../API";
     import loadings from "../Loading/Main";
-    import Authorization from "../Authorization";
-    import { login } from "../Status";
     import { Routes, router } from "../Router";
-
-    if ($login) {
-        router.Set(Routes.INDEX);
-    }
 
     let username = "";
     let password = "";

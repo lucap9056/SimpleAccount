@@ -1,6 +1,7 @@
 <script lang="ts">
     import Authorization from "../Authorization";
     import { Routes, router } from "../Router";
+    import Status from "../Status";
     import Translations from "../Translations";
 
     let edit: boolean = false;
@@ -20,6 +21,7 @@
     function logout() {
         Authorization.SetToken("invalid");
         Authorization.SetToken("invalid_t");
+        Status.login.update(() => false);
         router.Set(Routes.LOGIN);
     }
 </script>
