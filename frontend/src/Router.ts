@@ -3,6 +3,12 @@ import { Get, Path } from "./API";
 import { Alert, alertManager } from "./Alert/Struct";
 import Loading from "./Loading/Main"
 import Translations from "./Translations";
+import Status from "./Status";
+
+let login: boolean = false;
+Status.login.subscribe((l) => {
+    login = l;
+});
 
 export class Hash {
     private dirs: string[];
@@ -39,6 +45,7 @@ export const router = new class {
     public Set(...routes: string[]): void {
         if (routes.length < 1) return;
         let hash = "#" + routes[0].toLowerCase();
+
         for (let i = 1; i < routes.length; i++) {
             hash += "/" + routes;
         }
@@ -61,8 +68,22 @@ export const router = new class {
         const routes = CreateRoutes();
 
         const head = hash.Shift().toUpperCase();
-        if (routes[head] !== null) {
-            routes[head] = true;
+
+        let exist = false;
+        for (const r of Object.values(Routes)) {
+            if (head == r) {
+                exist = true;
+                routes[head] = true;
+            }
+        }
+
+        if (!exist) {
+            if (login) {
+                Set(Routes.INDEX);
+            } else {
+                Set(Routes.LOGIN);
+            }
+            return;
         }
 
         this.route.update(() => routes);
