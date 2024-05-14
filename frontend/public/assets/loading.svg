@@ -1,0 +1,32 @@
+<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <rect x="30" y="30" width="90" height="90" fill="none" stroke="#f54" stroke-width="8">
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 75 75"
+      to="360 75 75"
+      dur="2s"
+      repeatCount="indefinite"
+    />
+  </rect>
+  <rect x="40" y="40" width="70" height="70" fill="none" stroke="#007bff" stroke-width="7">
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 75 75"
+      to="-360 75 75"
+      dur="3s"
+      repeatCount="indefinite"
+    />
+  </rect>
+  <rect x="50" y="50" width="50" height="50" fill="none" stroke="orange" stroke-width="6">
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 75 75"
+      to="360 75 75"
+      dur="4s"
+      repeatCount="indefinite"
+    />
+  </rect>
+</svg>

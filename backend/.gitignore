@@ -1,0 +1,5 @@
+logs/*
+keys/*
+build.bat
+main
+config.json

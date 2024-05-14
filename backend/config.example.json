@@ -1,0 +1,22 @@
+{
+    "database": {
+        "source": "user:password@tcp(host:port)/Database"
+    },
+    "email": {
+        "email_host": "smtp.example.com",
+        "port": 587,
+        "user": "user@example.com",
+        "password": "password",
+        "api_host": "www.example.com"
+    },
+    "auth": {
+        "private_key_file_path": "keys/private.pem",
+        "public_key_file_path": "keys/public.pem",
+        "token_validity_duration": 30,
+        "//":"^ duration x Days",
+        "token_auto_renew_time": 6,
+        "//":"^ last x Days",
+        "temporary_token_validity_duration": 2,
+        "//":"^ duration x Hours"
+    }
+}
