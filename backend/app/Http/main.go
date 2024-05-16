@@ -7,18 +7,20 @@ import (
 	"simple_account/app/Auths"
 	"simple_account/app/Database"
 	"simple_account/app/Email"
+	"simple_account/app/Http/Author"
 	DELETE "simple_account/app/Http/Delete"
 	GET "simple_account/app/Http/Get"
+	"simple_account/app/Http/Message"
 	POST "simple_account/app/Http/Post"
 	PUT "simple_account/app/Http/Put"
 	"time"
 )
 
 type API struct {
-	Server      http.Server
-	DB          *Database.API
-	EmailSender *Email.Sender
-	Auth        *Auths.Auth
+	Server http.Server
+	DB     *Database.API
+	Email  *Email.Manager
+	Auth   *Auths.Auth
 }
 
 func New(port int, databaseConfig Database.Config, emailConfig Email.Config, auth *Auths.Auth) (*API, error) {
@@ -38,11 +40,11 @@ func New(port int, databaseConfig Database.Config, emailConfig Email.Config, aut
 	}
 	api.DB = DB
 
-	Em, err := Email.New(emailConfig)
+	email, err := Email.New(emailConfig)
 	if err != nil {
 		return nil, err
 	}
-	api.EmailSender = Em
+	api.Email = email
 
 	api.Auth = auth
 
@@ -51,16 +53,25 @@ func New(port int, databaseConfig Database.Config, emailConfig Email.Config, aut
 
 func (api *API) MainHandler(writer http.ResponseWriter, req *http.Request) {
 
-	author := GetAuthor(api.Auth, writer, req)
+	author := Author.Get(api.Auth, writer, req)
+	ctx := &Message.Context{
+		Author:   author,
+		Database: api.DB,
+		Auth:     api.Auth,
+		Writer:   writer,
+		Request:  req,
+		Email:    *api.Email,
+	}
+
 	switch req.Method {
 	case http.MethodGet:
-		GET.Handler(author, api.Auth, api.DB, writer, req)
+		GET.Handler(ctx)
 	case http.MethodPost:
-		POST.Handler(api.Auth, api.DB, writer, req, api.EmailSender)
+		POST.Handler(ctx)
 	case http.MethodPut:
-		PUT.Handler(author, api.DB, writer, req)
+		PUT.Handler(ctx)
 	case http.MethodDelete:
-		DELETE.Handler(author, api.DB, writer, req)
+		DELETE.Handler(ctx)
 	}
 }
 

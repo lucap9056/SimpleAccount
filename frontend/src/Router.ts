@@ -1,9 +1,10 @@
 import { writable, type Writable } from "svelte/store";
-import { Get, Path } from "./API";
+import API from "./API";
 import { Alert, alertManager } from "./Alert/Struct";
 import Loading from "./Loading/Main"
 import Translations from "./Translations";
 import Status from "./Status";
+import loadings from "./Loading/Main";
 
 let login: boolean = false;
 Status.login.subscribe((l) => {
@@ -68,6 +69,64 @@ export const router = new class {
         const routes = CreateRoutes();
 
         const head = hash.Shift().toUpperCase();
+        console.log(head);
+        switch (head) {
+            case "REGISTER":
+                {
+                    const id = hash.Shift();
+                    if (id === "") break;
+                    const loading = loadings.Append();
+                    try {
+                        const res = await API.VerifyRegister(id)
+                        if (res.success) {
+                            alertManager.Add(
+                                Translations.Get("register_success"),
+                                Alert.Type.Alert,
+                                null,
+                                Translations.Get("register_confirm"),
+                            );
+                        } else {
+                            alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                        }
+
+                        Set(Routes.LOGIN);
+                        loading.Remove();
+                        return;
+                    }
+                    catch {
+                        loading.Remove();
+                    }
+                    break;
+                }
+            case "CHANGE_EMAIL":
+                {
+                    const id = hash.Shift();
+                    if (id === "") break;
+                    const loading = loadings.Append();
+                    try {
+                        const res = await API.VerifyEmailChange(id);
+                        if (res.success) {
+                            alertManager.Add(
+                                Translations.Get("index_change_success"),
+                                Alert.Type.Alert,
+                                null,
+                                Translations.Get("register_confirm"),
+                            );
+                        } else {
+                            alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                        }
+
+                        Set(Routes.INDEX);
+                        loading.Remove();
+                        return;
+                    }
+                    catch {
+                        loading.Remove();
+                    }
+                    break;
+                }
+
+        }
 
         let exist = false;
         for (const r of Object.values(Routes)) {
@@ -87,31 +146,6 @@ export const router = new class {
         }
 
         this.route.update(() => routes);
-
-        switch (head) {
-            case Routes.REGISTER:
-                const id = hash.Shift();
-                if (id === "") break;
-                const loading = Loading.Append();
-                try {
-                    const res = await Get(Path.REGISTER + id);
-                    if (res.success) {
-                        alertManager.Add(
-                            Translations.Get("register_success"),
-                            Alert.Type.Alert,
-                            null,
-                            Translations.Get("register_confirm"),
-                        );
-                    } else {
-                        alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
-                    }
-                    Set(Routes.LOGIN);
-                }
-                catch { }
-                loading.Remove();
-
-                break;
-        }
     }
 
     public Hash() {

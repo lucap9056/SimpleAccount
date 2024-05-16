@@ -2,21 +2,19 @@
 <script lang="ts">
     import { Alert, alertManager } from "../Alert/Struct";
     import Translations from "../Translations";
-    import { Post, Path } from "../API";
+    import API from "../API";
     import loadings from "../Loading/Main";
     import { Routes, router } from "../Router";
+    import Status from "../Status";
 
-    let username = "";
+    let email = "";
     let password = "";
 
     async function handleSubmit() {
         const loading = loadings.Append();
-        Post(Path.LOGIN, {
-            username,
-            password,
-        }).then((res) => {
+        API.Login(email, password).then((res) => {
             if (res.success) {
-                router.Set(Routes.INDEX);
+                Status.login.update(() => true);
             } else {
                 alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
             }
@@ -29,8 +27,8 @@
     <form on:submit|preventDefault={handleSubmit}>
         <h2>{Translations.Get("login")}</h2>
         <div class="form-group">
-            <label for="username">{Translations.Get("login_username")}</label>
-            <input type="text" id="username" bind:value={username} required />
+            <label for="email">{Translations.Get("login_email")}</label>
+            <input type="text" id="email" bind:value={email} required />
         </div>
         <div class="form-group">
             <label for="password">{Translations.Get("login_password")}</label>

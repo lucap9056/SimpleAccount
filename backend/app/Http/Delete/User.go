@@ -1,12 +1,10 @@
 package simple_account_http_delete
 
 import (
-	"net/http"
-	"simple_account/app/AccountStruct"
-	"simple_account/app/Database"
 	"simple_account/app/Error"
+	"simple_account/app/Http/Message"
 )
 
-func User(author *AccountStruct.User, db *Database.API, writer http.ResponseWriter) (string, int, error) {
+func User(context *Message.Context) (string, int, error) {
 	return "", Error.NULL, nil
 }

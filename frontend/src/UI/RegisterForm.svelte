@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Post, Path } from "../API";
+  import API from "../API";
   import { alertManager, Alert } from "../Alert/Struct";
   import Translations from "../Translations";
   import Loading from "../Loading/Main";
@@ -30,11 +30,8 @@
     }
 
     const loading = Loading.Append();
-    Post(Path.REGISTER, {
-      username,
-      email,
-      password,
-    }).then((res) => {
+
+    API.Register(username, email, password).then((res) => {
       if (res.success) {
         alertManager.Add(
           Translations.Get("register_email_verification"),
@@ -181,9 +178,8 @@
 
   .input_alert {
     position: absolute;
-    left: 100%;
+    top: 100%;
     white-space: nowrap;
-    top: 0px;
     height: 32px;
     line-height: 32px;
     padding: 0 10px;

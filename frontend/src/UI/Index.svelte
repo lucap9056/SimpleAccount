@@ -3,20 +3,14 @@
     import { Routes, router } from "../Router";
     import Status from "../Status";
     import Translations from "../Translations";
+    import EmailForm from "../EditUI/Email.svelte";
+    import UsernameForm from "../EditUI/Username.svelte";
+    import PasswordForm from "../EditUI/Password.svelte";
 
-    let edit: boolean = false;
     let user: User;
     Authorization.GetUser().then((usr) => {
         user = usr;
     });
-
-    function save() {
-        //edit = false;
-    }
-
-    function editProfile() {
-        //edit = true;
-    }
 
     function logout() {
         Authorization.SetToken("invalid");
@@ -24,36 +18,74 @@
         Status.login.update(() => false);
         router.Set(Routes.LOGIN);
     }
+
+    let editUsername = false;
+    function EditUsername() {
+        editUsername = true;
+    }
+
+    let editEmail = false;
+    function EditEmail() {
+        editEmail = true;
+    }
+
+    let editPassword = false;
+    function EditPassword() {
+        editPassword = true;
+    }
+
+    function EditCancel() {
+        Authorization.GetUser().then((usr) => {
+            user = usr;
+        });
+        editUsername = false;
+        editEmail = false;
+        editPassword = false;
+    }
 </script>
 
 <div class="container">
     {#if user}
-        <div class="user-info">
-            <h2>{Translations.Get("index_info")}</h2>
-            <div class="input" data-label={Translations.Get("index_username")}>
-                <input type="text" bind:value={user.name} readonly={!edit} />
+        {#if !(editUsername || editEmail || editPassword)}
+            <div class="user-info">
+                <h2>{Translations.Get("index_info")}</h2>
+                <div
+                    class="field"
+                    data-label={Translations.Get("index_username")}
+                >
+                    <input type="text" bind:value={user.name} readonly />
+                    <button class="field_edit" on:click={EditUsername}>
+                        <ion-icon name="settings-outline"></ion-icon>
+                    </button>
+                </div>
+                <div class="field" data-label={Translations.Get("index_email")}>
+                    <input type="text" bind:value={user.email} readonly />
+                    <button class="field_edit" on:click={EditEmail}>
+                        <ion-icon name="settings-outline"></ion-icon>
+                    </button>
+                </div>
+
+                <div class="field">
+                    <button class="password_edit btn" on:click={EditPassword}>
+                        {Translations.Get("index_change_password")}
+                    </button>
+
+                    <button id="logout" class="btn right" on:click={logout}>
+                        <ion-icon name="log-out-outline"></ion-icon>
+                    </button>
+                </div>
             </div>
-            <div class="input" data-label={Translations.Get("index_email")}>
-                <input type="text" bind:value={user.email} readonly={!edit} />
-            </div>
-        </div>
-        <div class="options">
-            {#if edit}
-                <button class="right btn" on:click={save}>
-                    <ion-icon name="save-outline"></ion-icon>
-                </button>
-            {:else}
-                <button class="left btn">
-                    <ion-icon name="lock-closed-outline"></ion-icon>
-                </button>
-                <button class="right btn" on:click={editProfile}>
-                    <ion-icon name="settings-outline"></ion-icon>
-                </button>
-                <button class="right btn" on:click={logout}>
-                    <ion-icon name="log-out-outline"></ion-icon>
-                </button>
+        {:else}
+            {#if editUsername}
+                <UsernameForm on:cancel={EditCancel} />
             {/if}
-        </div>
+            {#if editEmail}
+                <EmailForm on:cancel={EditCancel} />
+            {/if}
+            {#if editPassword}
+                <PasswordForm on:cancel={EditCancel} />
+            {/if}
+        {/if}
     {/if}
 </div>
 
@@ -69,6 +101,7 @@
 
     .user-info {
         margin-bottom: 20px;
+        padding-bottom: 16px;
     }
 
     .user-info h2 {
@@ -77,7 +110,7 @@
         color: #333;
     }
 
-    .input {
+    .field {
         position: relative;
         margin: 0;
         font-size: 16px;
@@ -85,12 +118,21 @@
         margin-bottom: 0.5em;
     }
 
-    .input::before {
+    .field::before {
         content: attr(data-label);
-        position: absolute;
-        right: calc(100% - 110px);
+        position: relative;
         text-align: right;
         line-height: 32px;
+        float: left;
+        width: 100px;
+    }
+
+    input {
+        width: 240px;
+        outline: none;
+        float: left;
+        background-color: transparent;
+        border-color: transparent;
     }
 
     .btn {
@@ -104,10 +146,33 @@
         background-color: #007bff;
         transition: background-color 0.3s;
     }
-    .btn.left {
-        float: left;
+
+    .field_edit {
+        height: 32px;
+        font-size: 10px;
+        border-radius: 3px;
+        transition: background-color 0.3s;
     }
-    .btn.right {
+
+    .field_edit:hover {
+        background-color: #ccc;
+    }
+
+    .field_edit ion-icon {
+        font-size: 24px;
+    }
+
+    .password_edit {
+        width: auto;
+        height: 32px;
+        line-height: 32px;
+        padding: 0;
+        margin-left: 100px;
+        float: left;
+        padding: 0 20px;
+    }
+
+    .right {
         float: right;
     }
 
@@ -115,20 +180,11 @@
         background-color: #0056b3;
     }
 
-    input {
-        width: 240px;
-        margin-left: 60px;
+    #logout {
+        height: 32px;
+        padding: 4px 16px;
     }
-
-    input:read-only {
-        outline: none;
-    }
-
-    .options {
-        height: 42px;
-    }
-
-    ion-icon {
+    #logout ion-icon {
         font-size: 24px;
     }
 </style>

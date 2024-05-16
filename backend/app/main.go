@@ -20,11 +20,13 @@ type Config struct {
 		Source string `json:"source"`
 	} `json:"database"`
 	Email struct {
-		Host     string `json:"email_host"`
-		Port     int    `json:"port"`
-		User     string `json:"user"`
-		Password string `json:"password"`
-		ApiHost  string `json:"api_host"`
+		Host                string `json:"email_host"`
+		Port                int    `json:"port"`
+		User                string `json:"user"`
+		Password            string `json:"password"`
+		ApiHost             string `json:"api_host"`
+		FilesPath           string `json:"template_files_path"`
+		VerificationDuraion int    `json:"verification_duration"`
 	} `json:"email"`
 	Auth struct {
 		PrivateKeyFilePath    string `json:"private_key_file_path"`
@@ -55,11 +57,12 @@ func main() {
 	}
 
 	email := Email.Config{
-		Host:     config.Email.Host,
-		Port:     config.Email.Port,
-		User:     config.Email.User,
-		Password: config.Email.Password,
-		ApiHost:  config.Email.ApiHost,
+		Host:      config.Email.Host,
+		Port:      config.Email.Port,
+		User:      config.Email.User,
+		Password:  config.Email.Password,
+		ApiHost:   config.Email.ApiHost,
+		FilesPath: config.Email.FilesPath,
 	}
 
 	auth := &Auths.Auth{
@@ -69,6 +72,7 @@ func main() {
 		RenewTime:             time.Duration(config.Auth.RenewTime) * 24 * time.Hour,
 		CacheValidityDuration: time.Duration(config.Auth.CacheValidityDuration) * time.Hour,
 	}
+
 	err = auth.Init()
 	if err != nil {
 		panic(err)

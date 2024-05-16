@@ -4,26 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"simple_account/app/Auths"
-	"simple_account/app/Database"
-	"simple_account/app/Email"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Message"
 	"simple_account/app/Http/Url"
 	"simple_account/app/Logger"
 )
 
-func Handler(auth *Auths.Auth, db *Database.API, writer http.ResponseWriter, req *http.Request, emailSender *Email.Sender) {
-	url := Url.New(req.URL)
+func Handler(context *Message.Context) {
+	url := Url.New(context.Request.URL)
 
 	var result string
 	var errCode int
 	var err error
 	switch url.Shift() {
 	case "login":
-		errCode, err = Login(auth, db, writer, req)
+		errCode, err = Login(context)
 	case "register":
-		errCode, err = Register(db, req, emailSender)
+		errCode, err = Register(context)
+	case "email":
+		errCode, err = EmailOwner(context)
 	default:
 		errCode = Error.CLIENT_INVALID_REQUEST
 	}
@@ -40,20 +39,18 @@ func Handler(auth *Auths.Auth, db *Database.API, writer http.ResponseWriter, req
 	}
 
 	responseBytes, err := json.Marshal(response)
+	writer := context.Writer
+
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	if context.Author != nil {
+		context.Author.UpdateToken()
+	}
+
 	writer.WriteHeader(http.StatusOK)
 	writer.Header().Set("Content-Type", "text/json")
 	writer.Write(responseBytes)
-}
-
-type UserData struct {
-	Id       int
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Salt     string
-	Hash     string
 }
