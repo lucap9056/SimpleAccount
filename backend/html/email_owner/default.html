@@ -1,0 +1,28 @@
+{{define "default"}}From: {{.Author}}
+To: {{.Target}}
+Subject: Your SimpleAccount Email Verification Code Is {{.VerificationCode}}
+MIME-version: 1.0;
+Content-Type: text/html; charset="UTF-8";
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+</head>
+<body style="font-family: Arial, sans-serif;">
+
+    <div style="max-width: 600px; margin: 0 auto;">
+        <h2>Email Verification Code</h2>
+        <p>Hello,</p>
+        <p>You are receiving this email because you have requested to verify your email address.</p>
+        <p>Your verification code is: <strong>{{.VerificationCode}}</strong></p>
+        <p>If you did not request this, you can safely ignore this email.</p>
+        <p>Thank you!</p>
+    </div>
+
+</body>
+</html>
+{{end}}

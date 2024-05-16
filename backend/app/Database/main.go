@@ -2,15 +2,13 @@ package Database
 
 import (
 	"database/sql"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type API struct {
-	db           *sql.DB
-	saltSize     int
-	Verification *WaitingVerification
+	db       *sql.DB
+	saltSize int
 }
 
 type Config struct {
@@ -27,12 +25,6 @@ func New(data *Config) (*API, error) {
 	connect.SetMaxIdleConns(10)
 	database.db = connect
 	database.saltSize = 16
-
-	waitingVerification := WaitingVerification{
-		ExpiredTime: time.Hour,
-	}
-	waitingVerification.Init()
-	database.Verification = &waitingVerification
 
 	return &database, nil
 }

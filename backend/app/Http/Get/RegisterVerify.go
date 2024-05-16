@@ -1,14 +1,23 @@
 package simple_account_http_get
 
 import (
-	"simple_account/app/Database"
 	"simple_account/app/Error"
+	"simple_account/app/Http/Message"
 )
 
-func RegisterVerify(db *Database.API, verifyKey string) (int, error) {
-	userData := db.Verification.Verify(verifyKey)
+func RegisterVerify(context *Message.Context, verifyKey string) (int, error) {
+	db := context.Database
+	userData := context.Email.TimedKeys.Verify("register", verifyKey)
 	if userData == nil {
 		return Error.REGISTER_VERIFY_USER_NOT_EXIST, nil
+	}
+
+	errCode, err := db.UserExist(userData.Username, userData.Email, "")
+	if err != nil {
+		return Error.SYSTEM, err
+	}
+	if errCode != Error.NULL {
+		return errCode, nil
 	}
 
 	connect := db.Connect()
@@ -21,8 +30,7 @@ func RegisterVerify(db *Database.API, verifyKey string) (int, error) {
 	if err != nil {
 		return Error.SYSTEM, err
 	}
-
-	db.Verification.Del(verifyKey)
+	context.Email.TimedKeys.Del("register", verifyKey)
 
 	return Error.NULL, nil
 }

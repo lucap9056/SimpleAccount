@@ -5,20 +5,23 @@
 	import LoginForm from "./UI/LoginForm.svelte";
 	import Index from "./UI/Index.svelte";
 	import { Routes, route, router } from "./Router";
-	import Status from "./Status";
-	Status.Login().then((login) => {
+	import Status, { login } from "./Status";
+
+	Status.Login();
+
+	$: {
 		switch (true) {
 			case $route.INDEX:
-				if (login) return;
+				if ($login) break;
 				router.Set(Routes.LOGIN);
 				break;
 			case $route.LOGIN:
 			case $route.REGISTER:
-				if (!login) return;
+				if (!$login) break;
 				router.Set(Routes.INDEX);
 				break;
 		}
-	});
+	}
 </script>
 
 <main>

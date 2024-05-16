@@ -46,42 +46,42 @@ func (cache *AuthCache) ClearExpired() {
 	}
 }
 
-func (cache *AuthCache) GenerateKey() (string, error) {
+func (cache *AuthCache) GenerateToken() (string, error) {
 	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-	key := hex.EncodeToString(bytes)
-	return key, nil
+	token := hex.EncodeToString(bytes)
+	return token, nil
 }
 
-func (cache *AuthCache) Add(key string, sign Signature) error {
+func (cache *AuthCache) Add(token string, sign Signature) error {
 
 	cache.mux.Lock()
 	defer cache.mux.Unlock()
 
-	cache.Map[key] = &sign
+	cache.Map[token] = &sign
 
 	return nil
 }
 
-func (cache *AuthCache) Del(key string) {
+func (cache *AuthCache) Del(token string) {
 
 	cache.mux.Lock()
 	defer cache.mux.Unlock()
 
-	_, ok := cache.Map[key]
+	_, ok := cache.Map[token]
 	if ok {
-		delete(cache.Map, key)
+		delete(cache.Map, token)
 	}
 }
 
-func (cache *AuthCache) Verify(key string) *Signature {
+func (cache *AuthCache) Verify(token string) *Signature {
 
 	cache.mux.Lock()
 	defer cache.mux.Unlock()
 
-	sign, ok := cache.Map[key]
+	sign, ok := cache.Map[token]
 	if ok {
 		return sign
 	}

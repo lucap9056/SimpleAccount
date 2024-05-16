@@ -4,16 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"simple_account/app/AccountStruct"
-	"simple_account/app/Database"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Message"
 	"simple_account/app/Http/Url"
 	"simple_account/app/Logger"
 )
 
-func Handler(author *AccountStruct.User, db *Database.API, writer http.ResponseWriter, req *http.Request) {
-	url := Url.New(req.URL)
+func Handler(context *Message.Context) {
+	url := Url.New(context.Request.URL)
 
 	var result string
 	var errCode int
@@ -21,7 +19,14 @@ func Handler(author *AccountStruct.User, db *Database.API, writer http.ResponseW
 
 	switch url.Shift() {
 	case "user":
-		result, errCode, err = User(author, db, writer)
+		switch url.Shift() {
+		case "username":
+			errCode, err = Username(context)
+		case "email":
+			errCode, err = Email(context)
+		case "password":
+			errCode, err = Password(context)
+		}
 	default:
 		errCode = Error.SYSTEM_TEST
 	}
@@ -38,10 +43,16 @@ func Handler(author *AccountStruct.User, db *Database.API, writer http.ResponseW
 	}
 
 	responseBytes, err := json.Marshal(response)
+	writer := context.Writer
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	if context.Author != nil {
+		context.Author.UpdateToken()
+	}
+
 	writer.WriteHeader(http.StatusOK)
 	writer.Header().Set("Content-Type", "text/json")
 	writer.Write(responseBytes)

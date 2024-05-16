@@ -1,79 +1,79 @@
 package Email
 
 import (
-	"bytes"
 	"fmt"
 	"net/smtp"
-	"os"
-	"text/template"
+	"path/filepath"
+	"simple_account/app/Email/ChangeEmailMail"
+	"simple_account/app/Email/EmailOwnerMail"
+	"simple_account/app/Email/EmailSender"
+	"simple_account/app/Email/RegisterMail"
+	"simple_account/app/Email/TimedKeys"
+	"time"
 )
 
-const verificationHTMLPath = "verificationHtml/default.html"
+type Manager struct {
+	Templates *Templates
+	TimedKeys *TimedKeys.TimedKeys
+}
 
-type Sender struct {
-	template *template.Template
-	server   string
-	author   string
-	auth     smtp.Auth
-	host     string
+type Templates struct {
+	Register    *RegisterMail.Mail
+	ChangeEmail *ChangeEmailMail.Mail
+	EmailOwner  *EmailOwnerMail.Mail
 }
 
 type Config struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	ApiHost  string
+	FilesPath           string
+	Host                string
+	Port                int
+	User                string
+	Password            string
+	ApiHost             string
+	VerificationDuraion time.Duration
 }
 
-type Content struct {
-	Author           string
-	Target           string
-	VerificationLink string
-}
-
-func New(config Config) (*Sender, error) {
-	bytes, err := os.ReadFile(verificationHTMLPath)
-	if err != nil {
-		return nil, err
-	}
-
-	html := string(bytes)
-
-	tmpl, err := template.New("VerificationLink").Parse(html)
-	if err != nil {
-		return nil, err
-	}
-
+func New(config Config) (*Manager, error) {
 	server := fmt.Sprintf("%s:%d", config.Host, config.Port)
 	auth := smtp.PlainAuth("", config.User, config.Password, config.Host)
-	sender := Sender{
-		template: tmpl,
-		server:   server,
-		author:   config.User,
-		auth:     auth,
-		host:     config.ApiHost,
-	}
-	return &sender, nil
-}
 
-func (sender *Sender) SendVerify(targetEmail string, key string) error {
-	content := Content{
-		Author:           sender.author,
-		Target:           targetEmail,
-		VerificationLink: "https://" + sender.host + "/#register/" + key,
+	sender := &EmailSender.Sender{
+		Server: server,
+		Author: config.User,
+		Auth:   auth,
+		Host:   config.ApiHost,
 	}
 
-	var result bytes.Buffer
-	err := sender.template.Execute(&result, content)
+	registerTemplatePath := filepath.Join(config.FilesPath, "register")
+	register, err := RegisterMail.New(sender, registerTemplatePath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = smtp.SendMail(sender.server, sender.auth, sender.author, []string{targetEmail}, result.Bytes())
+	changeEmailTemplatePath := filepath.Join(config.FilesPath, "change_email")
+	changeEmail, err := ChangeEmailMail.New(sender, changeEmailTemplatePath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	verificationTemplatePath := filepath.Join(config.FilesPath, "email_owner")
+	emailOwner, err := EmailOwnerMail.New(sender, verificationTemplatePath)
+	if err != nil {
+		return nil, err
+	}
+
+	templates := Templates{
+		Register:    register,
+		ChangeEmail: changeEmail,
+		EmailOwner:  emailOwner,
+	}
+
+	timedKeys := TimedKeys.New(config.VerificationDuraion)
+
+	manager := &Manager{
+		Templates: &templates,
+		TimedKeys: timedKeys,
+	}
+
+	return manager, nil
 }

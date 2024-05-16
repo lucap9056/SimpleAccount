@@ -26,23 +26,18 @@ function GetToken(): string {
     return storage.getItem(TEMP_TOKEN) || storage.getItem(TOKEN) || "";
 }
 
-let user: User = null;
 function GetUser(): Promise<User> {
     return new Promise((resolve, reject) => {
-        if (user === null) {
-            const token = storage.getItem(TOKEN);
-            try {
-                const playloadStr = atob(token.replace(/\..*/, ''));
-                const playload: Playload = JSON.parse(playloadStr);
-                user = playload.user;
-                console.log(user);
-            }
-            catch {
-                reject();
-                return;
-            }
+        const token = storage.getItem(TOKEN);
+        try {
+            const playloadStr = atob(token.replace(/\..*/, ''));
+            const playload: Playload = JSON.parse(playloadStr);
+            resolve(playload.user);
         }
-        resolve(user);
+        catch {
+            reject();
+            return;
+        }
     });
 }
 

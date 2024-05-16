@@ -2,20 +2,24 @@ package simple_account_http_get
 
 import (
 	"encoding/json"
-	"net/http"
-	"simple_account/app/AccountStruct"
-	"simple_account/app/Auths"
 	"simple_account/app/Error"
+	"simple_account/app/Http/Message"
 )
 
-func User(author *AccountStruct.User, auth *Auths.Auth, writer http.ResponseWriter, req *http.Request) (string, int, error) {
-	if author != nil {
+func User(context *Message.Context) (string, int, error) {
+	if context.Author.User == nil {
+		return "", Error.NOT_LOGGED_IN, nil
+	}
 
-		bytes, err := json.Marshal(author)
+	author := context.Author
+	if author.User != nil {
+
+		bytes, err := json.Marshal(author.User)
 		if err != nil {
 			return "", Error.SYSTEM, nil
 		}
 		return string(bytes), Error.NULL, nil
 	}
+
 	return "", Error.NOT_LOGGED_IN, nil
 }

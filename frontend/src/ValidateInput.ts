@@ -23,7 +23,7 @@ function Email(value: string): string {
     return "";
 }
 
-function Password(value: string): string {
+function Password(value: string, old?: string): string {
     if (value.length < 8) {
         return Translations.Get("register_password_too_short");
     }
@@ -31,6 +31,10 @@ function Password(value: string): string {
     if (!/^[A-Za-z0-9!@#$%^&*_\-]+$/.test(value)) {
         return Translations.Get("register_invalid_password");
     }
+
+    if (old && value === old) {
+        return Translations.Get("index_change_password_cant_equal")
+    } 
     return "";
 }
 
