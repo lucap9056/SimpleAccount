@@ -2,12 +2,10 @@ package simple_account_http_put
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Message"
 	"simple_account/app/Http/Url"
-	"simple_account/app/Logger"
 )
 
 func Handler(context *Message.Context) {
@@ -32,8 +30,7 @@ func Handler(context *Message.Context) {
 	}
 
 	if err != nil {
-		Logger.Error(err)
-		fmt.Println(err)
+		context.Logs.Error.Write(err)
 	}
 
 	response := Message.Response{

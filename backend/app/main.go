@@ -1,9 +1,9 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"simple_account/app/Auths"
@@ -16,6 +16,8 @@ import (
 )
 
 type Config struct {
+	Port     int    `json:"listen_port"`
+	LogsPath string `json:"logs_dir_path"`
 	Database struct {
 		Source string `json:"source"`
 	} `json:"database"`
@@ -39,11 +41,9 @@ type Config struct {
 
 func main() {
 
-	Logger.Init()
-
 	configBytes, err := os.ReadFile("config.json")
 	if err != nil {
-		log.Fatalf("read json file fail: %v", err)
+		panic(err)
 	}
 
 	var config Config
@@ -51,6 +51,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	logger, err := Logger.New(config.LogsPath)
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Close()
 
 	database := Database.Config{
 		SourceName: config.Database.Source,
@@ -78,23 +84,20 @@ func main() {
 		panic(err)
 	}
 
-	server, err := Server.New(80, database, email, auth)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
+	server, err := Server.New(config.Port, database, email, auth, logger)
 	if err != nil {
 		panic(err)
 	}
 
 	go server.Start()
+	defer server.Exit(ctx)
 
 	fmt.Println("START")
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
-
-	Logger.Close()
-
-	if err := server.Exit(); err != nil {
-		panic(err)
-	}
 }

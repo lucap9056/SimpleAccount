@@ -1,4 +1,4 @@
-package simple_account_http
+package Server
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"simple_account/app/Http/Message"
 	POST "simple_account/app/Http/Post"
 	PUT "simple_account/app/Http/Put"
-	"time"
+	"simple_account/app/Logger"
 )
 
 type API struct {
@@ -21,9 +21,10 @@ type API struct {
 	DB     *Database.API
 	Email  *Email.Manager
 	Auth   *Auths.Auth
+	Logs   *Logger.Manager
 }
 
-func New(port int, databaseConfig Database.Config, emailConfig Email.Config, auth *Auths.Auth) (*API, error) {
+func New(port int, databaseConfig Database.Config, emailConfig Email.Config, auth *Auths.Auth, logs *Logger.Manager) (*API, error) {
 	api := API{}
 	mux := http.NewServeMux()
 
@@ -48,6 +49,8 @@ func New(port int, databaseConfig Database.Config, emailConfig Email.Config, aut
 
 	api.Auth = auth
 
+	api.Logs = logs
+
 	return &api, nil
 }
 
@@ -60,7 +63,8 @@ func (api *API) MainHandler(writer http.ResponseWriter, req *http.Request) {
 		Auth:     api.Auth,
 		Writer:   writer,
 		Request:  req,
-		Email:    *api.Email,
+		Email:    api.Email,
+		Logs:     api.Logs,
 	}
 
 	switch req.Method {
@@ -77,13 +81,11 @@ func (api *API) MainHandler(writer http.ResponseWriter, req *http.Request) {
 
 func (api *API) Start() {
 	err := api.Server.ListenAndServe()
-	if err != nil {
+	if err != http.ErrServerClosed {
 		panic(err)
 	}
 }
 
-func (api *API) Exit() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func (api *API) Exit(ctx context.Context) error {
 	return api.Server.Shutdown(ctx)
 }
