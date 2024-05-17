@@ -3,6 +3,7 @@ package Logger
 import (
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var infoLogFile *os.File
@@ -10,41 +11,64 @@ var errorLogFile *os.File
 var infoLogger *log.Logger
 var errorLogger *log.Logger
 
-func Init() {
-	logsPath := "./logs"
-	_, err := os.Stat(logsPath)
-	if os.IsNotExist(err) {
-		err := os.Mkdir(logsPath, 0755)
-		if err != nil {
-			log.Fatalln(err)
-		}
-	} else if err != nil {
-		log.Fatalln(err)
-	}
+type Manager struct {
+	Info  *Logger
+	Error *Logger
+}
 
-	infoLogFile, err := os.OpenFile(logsPath+"/info.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+func New(logsPath string) (*Manager, error) {
+
+	infoPath := filepath.Join(logsPath, "info.log")
+	infoLogger, err := NewLogger(infoPath)
 	if err != nil {
-		log.Fatalln("Cannot open info log file:", err)
+		return nil, err
 	}
 
-	errorLogFile, err := os.OpenFile(logsPath+"/error.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	errorPath := filepath.Join(logsPath, "error.log")
+	errLogger, err := NewLogger(errorPath)
 	if err != nil {
-		log.Fatalln("Cannot open error log file:", err)
+		return nil, err
 	}
 
-	infoLogger = log.New(infoLogFile, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	errorLogger = log.New(errorLogFile, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	manager := &Manager{
+		Info:  infoLogger,
+		Error: errLogger,
+	}
+
+	return manager, nil
 }
 
-func Close() {
-	infoLogFile.Close()
-	errorLogFile.Close()
+func (manager *Manager) Close() {
+	manager.Error.Close()
+	manager.Info.Close()
 }
 
-func Info(message string) {
-	infoLogger.Println(message)
+type Logger struct {
+	file *os.File
+	log  *log.Logger
 }
 
-func Error(err error) {
-	errorLogger.Println(err.Error())
+func NewLogger(filePath string) (*Logger, error) {
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return nil, err
+	}
+
+	logger := &Logger{
+		file: file,
+		log:  log.New(file, "", log.Ldate|log.Ltime|log.Lshortfile),
+	}
+	return logger, nil
+}
+
+func (logger *Logger) Close() error {
+	return logger.file.Close()
+}
+
+func (logger *Logger) Write(e interface{}) {
+	if err, ok := e.(error); ok {
+		logger.log.Println(err.Error())
+		return
+	}
+	logger.log.Println(e)
 }

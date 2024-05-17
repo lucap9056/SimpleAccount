@@ -1,4 +1,6 @@
 {
+    "listen_port": 80,
+    "logs_dir_path": "logs",
     "database": {
         "source": "user:password@tcp(host:port)/Database",
         "//": ""

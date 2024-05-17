@@ -9,6 +9,7 @@ import (
 	"simple_account/app/Email"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Author"
+	"simple_account/app/Logger"
 )
 
 type Response struct {
@@ -23,7 +24,8 @@ type Context struct {
 	Database *Database.API
 	Writer   http.ResponseWriter
 	Request  *http.Request
-	Email    Email.Manager
+	Email    *Email.Manager
+	Logs     *Logger.Manager
 }
 
 func (ctx *Context) ResquestBody() (*UserData, int, error) {
