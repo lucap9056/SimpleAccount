@@ -19,7 +19,7 @@ const _default = {
     register_passwords_not_match: "Your passwords do not match.",
     register_success: "Register success.",
 
-    login_username: "Name",
+    login_email: "Email",
     login_password: "Password",
 
     index_info: "User info",
@@ -91,7 +91,7 @@ const translations: { [key: string]: { [key: string]: string } } = {
         register_passwords_not_match: "密碼不相同",
         register_success: "註冊成功",
 
-        login_username: "使用者名稱",
+        login_Email: "電子信箱",
         login_password: "密碼",
 
         index_info: "使用者資訊",
