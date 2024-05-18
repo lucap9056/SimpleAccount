@@ -1,14 +1,12 @@
 package simple_account_http_post
 
 import (
-	"fmt"
 	"simple_account/app/AccountStruct"
 	"simple_account/app/Auths"
 	"simple_account/app/Auths/Validate"
 	"simple_account/app/Email/TimedKeys"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Message"
-	"time"
 )
 
 func Register(context *Message.Context) (int, error) {
@@ -43,13 +41,11 @@ func Register(context *Message.Context) (int, error) {
 	userData.Salt = Auths.Salt()
 	userData.Hash = Auths.Hash(userData.Salt, userData.Password)
 
-	currentTime := time.Now()
 	user := AccountStruct.User{
-		Username:   userData.Username,
-		Email:      userData.Email,
-		Salt:       userData.Salt,
-		Hash:       userData.Hash,
-		CreateTime: &currentTime,
+		Username: userData.Username,
+		Email:    userData.Email,
+		Salt:     userData.Salt,
+		Hash:     userData.Hash,
 	}
 
 	key, err := TimedKeys.GenerateKey()
@@ -58,7 +54,6 @@ func Register(context *Message.Context) (int, error) {
 	}
 
 	language := context.Author.Language
-	fmt.Println(language)
 	err = email.Templates.Register.SendVerify(language, user.Email, key)
 	if err != nil {
 		return Error.SYSTEM, err

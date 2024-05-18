@@ -4,12 +4,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 )
-
-var infoLogFile *os.File
-var errorLogFile *os.File
-var infoLogger *log.Logger
-var errorLogger *log.Logger
 
 type Manager struct {
 	Info  *Logger
@@ -46,6 +42,7 @@ func (manager *Manager) Close() {
 type Logger struct {
 	file *os.File
 	log  *log.Logger
+	mux  sync.Mutex
 }
 
 func NewLogger(filePath string) (*Logger, error) {
@@ -66,6 +63,8 @@ func (logger *Logger) Close() error {
 }
 
 func (logger *Logger) Write(e interface{}) {
+	logger.mux.Lock()
+	defer logger.mux.Unlock()
 	if err, ok := e.(error); ok {
 		logger.log.Println(err.Error())
 		return

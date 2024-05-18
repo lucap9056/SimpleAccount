@@ -11,19 +11,25 @@ func ChangeEmailVerify(context *Message.Context, verifyKey string) (int, error) 
 	}
 
 	db := context.Database
-	userData := context.Email.TimedKeys.Verify("change_email", verifyKey)
-	if userData == nil {
+	user := context.Email.TimedKeys.Verify("change_email", verifyKey)
+	if user == nil {
 		return Error.EMAIL_VERIFY_NOT_EXIST, nil
 	}
 
 	connect := db.Connect()
-	query := "UPDATE User SET email=? WHERE id=?"
-	_, err := connect.Exec(query, userData.Email, userData.Id)
+	query := "UPDATE User SET email=?,last_edit=CUTTENT_TIMESTAMP() WHERE id=?"
+	_, err := connect.Exec(query, user.Email, user.Id)
 	if err != nil {
 		return Error.SYSTEM, err
 	}
+	context.Auth.Cache.ClearUser(user.Id)
 
-	errCode, err := context.Author.GenerateToken(userData, context.Auth)
+	newUser, errCode, err := context.Database.GetUser(user.Id)
+	if errCode != Error.NULL {
+		return Error.SYSTEM, err
+	}
+
+	errCode, err = context.Author.GenerateToken(&newUser, context.Auth)
 	if errCode != Error.NULL {
 		return errCode, err
 	}

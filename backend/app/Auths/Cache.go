@@ -46,6 +46,17 @@ func (cache *AuthCache) ClearExpired() {
 	}
 }
 
+func (cache *AuthCache) ClearUser(userId int) {
+	cache.mux.Lock()
+	defer cache.mux.Unlock()
+
+	for key, sign := range cache.Map {
+		if sign.User.Id == userId {
+			delete(cache.Map, key)
+		}
+	}
+}
+
 func (cache *AuthCache) GenerateToken() (string, error) {
 	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {
@@ -56,7 +67,7 @@ func (cache *AuthCache) GenerateToken() (string, error) {
 }
 
 func (cache *AuthCache) Add(token string, sign Signature) error {
-
+	sign.CreateTime = time.Now()
 	cache.mux.Lock()
 	defer cache.mux.Unlock()
 
