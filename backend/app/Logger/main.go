@@ -65,6 +65,7 @@ func (logger *Logger) Close() error {
 func (logger *Logger) Write(e interface{}) {
 	logger.mux.Lock()
 	defer logger.mux.Unlock()
+  
 	if err, ok := e.(error); ok {
 		logger.log.Println(err.Error())
 		return
