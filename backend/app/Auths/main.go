@@ -2,9 +2,10 @@ package Auths
 
 import (
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/hex"
+	"simple_account/app/Logger"
+	"sync"
 	"time"
 )
 
@@ -27,38 +28,60 @@ func Hash(salt string, value string) string {
 }
 
 type Auth struct {
-	PrivateKeyFilePath    string
-	PublicKeyFilePath     string
-	privateKey            *rsa.PrivateKey
-	publicKey             *rsa.PublicKey
+	KeyFilesPath          string
+	keys                  map[string]Key
+	expiredKeys           map[string]Key
+	muxKeys               sync.RWMutex
 	Cache                 AuthCache
+	KeyValidityDuration   time.Duration
 	ValidityDuration      time.Duration
 	RenewTime             time.Duration
 	CacheValidityDuration time.Duration
+	Total                 int
+	logger                *Logger.Manager
 }
 
-func (auth *Auth) Init() error {
+func (auth *Auth) Init(logger *Logger.Manager) error {
+	auth.logger = logger
+
 	auth.Cache.Init(auth.CacheValidityDuration)
 	//確認 RSA256 公私鑰是否都存在
-	if auth.rsaKeyExist() {
-		var err error
-		// 讀取私鑰
-		auth.privateKey, err = auth.readPrivateKey()
-		if err != nil {
-			return err
-		}
-		// 讀取公鑰
-		auth.publicKey, err = auth.readPublicKey()
-		if err != nil {
-			return err
-		}
-	} else {
-		//生成並讀取公私鑰
-		err := auth.generateRsaKey()
-		if err != nil {
-			return err
+	keysId, err := auth.rsaKeysExist()
+	if err != nil {
+		return err
+	}
+
+	keys, err := auth.readKeys(keysId)
+	if err != nil {
+		return err
+	}
+
+	auth.keys = make(map[string]Key)
+	auth.expiredKeys = make(map[string]Key)
+
+	currentTime := time.Now()
+	for _, key := range keys {
+		if currentTime.Before(key.iat) {
+			auth.expiredKeys[key.id] = key
+		} else {
+			auth.keys[key.id] = key
 		}
 	}
+
+	for len(auth.keys) < auth.Total {
+		key, err := auth.generateKey()
+		if err != nil {
+			return err
+		}
+		auth.keys[key.id] = key
+	}
+
+	ticker := time.NewTicker(1 * time.Hour)
+	go func() {
+		for range ticker.C {
+			auth.removeExpiredKeys()
+		}
+	}()
 
 	return nil
 }

@@ -23,7 +23,8 @@ func Login(context *Message.Context) (int, error) {
 	}
 
 	connect := context.Database.Connect()
-	query := "SELECT id,username,email,salt,hash FROM User WHERE email=?"
+	include := "id,username,email,salt,hash,last_edit,create_time,deleted"
+	query := "SELECT " + include + " FROM User WHERE email=?"
 	rows, err := connect.Query(query, requestUser.Email)
 	if err != nil {
 		return Error.SYSTEM, err
@@ -31,14 +32,19 @@ func Login(context *Message.Context) (int, error) {
 
 	user := &AccountStruct.User{}
 	if rows.Next() {
-		var salt, hash string
-		err := rows.Scan(&user.Id, &user.Username, &user.Email, &salt, &hash)
+		columns := user.MappingTable(include)
+		err := rows.Scan(columns...)
 		if err != nil {
 			return Error.SYSTEM, err
 		}
+		user.Convert()
 
-		if Auths.Hash(salt, requestUser.Password) != hash {
+		if Auths.Hash(user.Salt, requestUser.Password) != user.Hash {
 			return Error.PASSWORD_NOT_MATCH, nil
+		}
+
+		if user.DeletedTime != nil {
+			return Error.USER_DELETED, nil
 		}
 	} else {
 		return Error.USER_NOT_EXIST, nil

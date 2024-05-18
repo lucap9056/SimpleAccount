@@ -31,8 +31,8 @@ type Config struct {
 		VerificationDuraion int    `json:"verification_duration"`
 	} `json:"email"`
 	Auth struct {
-		PrivateKeyFilePath    string `json:"private_key_file_path"`
-		PublicKeyFilePath     string `json:"public_key_file_path"`
+		Total                 int    `json:"total_number_of_keys"`
+		KeyFilesPath          string `json:"key_files_path"`
 		ValidityDuration      int    `json:"token_validity_duration"`
 		RenewTime             int    `json:"token_auto_renew_time"`
 		CacheValidityDuration int    `json:"temporary_token_validity_duration"`
@@ -72,14 +72,14 @@ func main() {
 	}
 
 	auth := &Auths.Auth{
-		PrivateKeyFilePath:    config.Auth.PrivateKeyFilePath,
-		PublicKeyFilePath:     config.Auth.PublicKeyFilePath,
+		Total:                 config.Auth.Total,
+		KeyFilesPath:          config.Auth.KeyFilesPath,
 		ValidityDuration:      time.Duration(config.Auth.ValidityDuration) * 24 * time.Hour,
 		RenewTime:             time.Duration(config.Auth.RenewTime) * 24 * time.Hour,
 		CacheValidityDuration: time.Duration(config.Auth.CacheValidityDuration) * time.Hour,
 	}
 
-	err = auth.Init()
+	err = auth.Init(logger)
 	if err != nil {
 		panic(err)
 	}
