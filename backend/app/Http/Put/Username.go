@@ -1,7 +1,6 @@
 package simple_account_http_put
 
 import (
-	"fmt"
 	"simple_account/app/Auths"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Message"
@@ -30,7 +29,7 @@ func Username(context *Message.Context) (int, error) {
 	newUsername := requestUser.Username
 	userId := strconv.FormatInt(int64(author.Id), 10)
 
-	errCode, err = context.Database.UserExist(newUsername, author.Email, userId)
+	errCode, err = context.Database.UserExist(newUsername, "", userId)
 	if err != nil {
 		return errCode, err
 	}
@@ -64,11 +63,13 @@ func Username(context *Message.Context) (int, error) {
 
 	newUser, errCode, err := context.Database.GetUser(author.Id)
 	if errCode != Error.NULL {
-		fmt.Println(err)
 		return Error.SYSTEM, err
 	}
 
-	context.Author.GenerateToken(&newUser, context.Auth)
+	errCode, err = context.Author.GenerateToken(&newUser, context.Auth)
+	if errCode != Error.NULL {
+		return errCode, err
+	}
 
 	return Error.NULL, nil
 }

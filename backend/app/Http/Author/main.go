@@ -109,7 +109,7 @@ func Get(auth *Auths.Auth, writer http.ResponseWriter, request *http.Request) *A
 		}
 
 		currentTime := time.Now()
-		expiresTime := time.Unix(sign.Playload.Iat, 0)
+		expiresTime := time.Unix(sign.Head.Exp, 0)
 
 		if expiresTime.Before(currentTime) {
 			author.InvaildToken()
@@ -119,10 +119,10 @@ func Get(auth *Auths.Auth, writer http.ResponseWriter, request *http.Request) *A
 		if expiresTime.Before(currentTime.Add(auth.RenewTime)) {
 			expiresTime = currentTime.Add(auth.ValidityDuration)
 
-			sign.Playload.Iat = expiresTime.Unix()
+			sign.Head.Exp = expiresTime.Unix()
 			secret := Auths.Salt()
 
-			token, err := auth.GenerateToken(sign.Playload, secret)
+			token, err := auth.GenerateToken(sign.User, secret)
 			if err != nil {
 				return author
 			}
@@ -135,25 +135,24 @@ func Get(auth *Auths.Auth, writer http.ResponseWriter, request *http.Request) *A
 				return author
 			}
 
-			sign.CreateTime = currentTime
 			err = auth.Cache.Add(secret+"-"+tempToken, *sign)
 			if err != nil {
 				return author
 			}
 
-			author.SetToken("Bearer " + tempToken)
+			author.SetToken("T " + tempToken)
 		}
 
-		user := &sign.Playload.User
+		user := &sign.User
 		return author.setUser(user)
 	}
 
-	if strings.Index(token, "Bearer ") == 0 {
-		tempToken := secret + "-" + token[7:]
+	if strings.Index(token, "T ") == 0 {
+		tempToken := secret + "-" + token[2:]
 
 		sign := auth.Cache.Verify(tempToken)
 		if sign != nil {
-			user := &sign.Playload.User
+			user := &sign.User
 			return author.setUser(user)
 		} else {
 			author.InvaildTempToken()
@@ -164,17 +163,8 @@ func Get(auth *Auths.Auth, writer http.ResponseWriter, request *http.Request) *A
 
 func (author *Author) GenerateToken(user *AccountStruct.User, auth *Auths.Auth) (int, error) {
 	expiresTime := time.Now().Add(auth.ValidityDuration)
-
-	playload := Auths.Playload{
-		User: AccountStruct.User{
-			Id:       user.Id,
-			Username: user.Username,
-			Email:    user.Email,
-		},
-		Iat: expiresTime.Unix(),
-	}
 	secret := Auths.Salt()
-	token, err := auth.GenerateToken(playload, secret)
+	token, err := auth.GenerateToken(*user, secret)
 	if err != nil {
 		return Error.SYSTEM, err
 	}

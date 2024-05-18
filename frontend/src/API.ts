@@ -19,6 +19,7 @@ const ErrorCode: { [key: number]: string } = {
 
     21: "error_user_not_exist",
     22: "error_password_not_match",
+    23: "error_user_deleted",
 
     31: "error_username_is_empty",
     32: "error_email_is_empty",
@@ -29,6 +30,7 @@ const ErrorCode: { [key: number]: string } = {
     42: "error_authorization_expired",
     43: "error_not_logged_in",
     44: "error_user_not_match",
+    45: "error_user_data_edited",
 
     51: "error_email_verify_not_exist",
     52: "error_email_verification_code_is_empty",

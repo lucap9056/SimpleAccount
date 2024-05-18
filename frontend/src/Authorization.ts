@@ -7,12 +7,13 @@ function SetToken(token: string): void {
     switch (token) {
         case "invalid":
             storage.removeItem(TOKEN);
+            storage.removeItem(TEMP_TOKEN);
             break;
         case "invalid_t":
             storage.removeItem(TEMP_TOKEN);
             break;
         default:
-            if (/^Bearer /.test(token)) {
+            if (/^T /.test(token)) {
                 storage.setItem(TEMP_TOKEN, token);
                 return;
             }
@@ -28,11 +29,11 @@ function GetToken(): string {
 
 function GetUser(): Promise<User> {
     return new Promise((resolve, reject) => {
-        const token = storage.getItem(TOKEN);
         try {
-            const playloadStr = atob(token.replace(/\..*/, ''));
-            const playload: Playload = JSON.parse(playloadStr);
-            resolve(playload.user);
+            const token = storage.getItem(TOKEN).split(/\./g);
+            const userStr = atob(token[1])
+            const user: User = JSON.parse(userStr);
+            resolve(user);
         }
         catch {
             reject();

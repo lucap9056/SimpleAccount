@@ -9,38 +9,58 @@ import (
 	"time"
 )
 
+type Head struct {
+	KeyID string `json:"key_id"`
+	Exp   int64  `json:"exp"`
+}
 type Signature struct {
-	Playload   Playload  `json:"playload"`
-	Secret     string    `json:"secret"`
-	CreateTime time.Time `json:"-"`
+	Head       Head               `json:"head"`
+	User       AccountStruct.User `json:"playload"`
+	Secret     string             `json:"secret"`
+	CreateTime time.Time          `json:"-"`
 }
 
-type Playload struct {
-	User AccountStruct.User `json:"user"`
-	Iat  int64              `json:"iat"`
-}
+func (auth *Auth) GenerateToken(user AccountStruct.User, secret string) (string, error) {
+	keyId := auth.rsaRandomKeyId()
+	expiresTime := time.Now().Add(auth.ValidityDuration)
+	head := Head{
+		KeyID: keyId,
+		Exp:   expiresTime.Unix(),
+	}
 
-func (auth *Auth) GenerateToken(playload Playload, secret string) (string, error) {
+	headBytes, err := json.Marshal(head)
+	if err != nil {
+		return "", err
+	}
 
-	playloadBytes, _ := json.Marshal(playload)
+	headStr := base64.StdEncoding.EncodeToString(headBytes)
+
+	playloadBytes, err := json.Marshal(user)
+	if err != nil {
+		return "", err
+	}
 
 	playloadStr := base64.StdEncoding.EncodeToString(playloadBytes)
 
 	sign := Signature{
-		Playload: playload,
-		Secret:   secret,
+		Head: head,
+		User: AccountStruct.User{
+			Id:           user.Id,
+			LastEditTime: user.LastEditTime,
+		},
+		Secret: secret,
 	}
 
 	signJson, _ := json.Marshal(sign)
 
-	signBytes, err := auth.rsaEncode(signJson)
+	signBytes, err := auth.rsaEncode(keyId, signJson)
 	if err != nil {
 		return "", err
 	}
 
 	signStr := base64.StdEncoding.EncodeToString(signBytes)
 
-	token := playloadStr + "." + signStr
+	token := headStr + "." + playloadStr + "." + signStr
 	return token, nil
 }
 
@@ -48,18 +68,34 @@ func (auth *Auth) DecodeToken(jwtStr string) (*Signature, int, error) {
 	var err error
 
 	token := strings.Split(jwtStr, ".")
-	if len(token) != 2 {
+	if len(token) != 3 {
 		return nil, Error.AUTHORIZATION_INVALID, nil
 	}
 
-	signBase64 := token[1]
+	headBase64 := token[0]
+	headEncoded, err := base64.StdEncoding.DecodeString(headBase64)
+	if err != nil {
+		return nil, Error.AUTHORIZATION_INVALID, err
+	}
+	var head Head
+	err = json.Unmarshal(headEncoded, &head)
+	if err != nil {
+		return nil, Error.AUTHORIZATION_INVALID, err
+	}
+
+	currentTime := time.Now().Unix()
+	if currentTime > head.Exp {
+		return nil, Error.AUTHORIZATION_INVALID, nil
+	}
+
+	signBase64 := token[2]
 	signEncoded, err := base64.StdEncoding.DecodeString(signBase64)
 	if err != nil {
 		return nil, Error.AUTHORIZATION_INVALID, err
 	}
-	signDecoded, err := auth.RsaDecode(signEncoded)
+	signDecoded, errCode, err := auth.RsaDecode(head.KeyID, signEncoded)
 	if err != nil {
-		return nil, Error.AUTHORIZATION_INVALID, err
+		return nil, errCode, err
 	}
 
 	var sign Signature

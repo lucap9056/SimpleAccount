@@ -16,8 +16,10 @@
         "//": "^ duration x Minutes"
     },
     "auth": {
-        "private_key_file_path": "keys/private.pem",
-        "public_key_file_path": "keys/public.pem",
+        "total_number_of_keys": 10,
+        "key_validity_duration": 30,
+        "//": "^ duration x Days",
+        "key_files_path": "./keys/",
         "token_validity_duration": 30,
         "//": "^ duration x Days",
         "token_auto_renew_time": 6,

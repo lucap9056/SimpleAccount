@@ -10,15 +10,20 @@ import (
 	"time"
 )
 
+type TempUser struct {
+	User       AccountStruct.User
+	CreateTime time.Time
+}
+
 type TimedKeys struct {
 	mux         sync.Mutex
-	Map         map[string]*AccountStruct.User
+	Map         map[string]TempUser
 	ExpiredTime time.Duration
 }
 
 func New(duration time.Duration) *TimedKeys {
 	verification := &TimedKeys{
-		Map:         make(map[string]*AccountStruct.User),
+		Map:         make(map[string]TempUser),
 		ExpiredTime: duration * time.Minute,
 	}
 
@@ -42,7 +47,10 @@ func (timedKeys *TimedKeys) Add(pre string, k string, user AccountStruct.User) e
 	timedKeys.mux.Lock()
 	defer timedKeys.mux.Unlock()
 	key := pre + "-" + k
-	timedKeys.Map[key] = &user
+	timedKeys.Map[key] = TempUser{
+		User:       user,
+		CreateTime: time.Now(),
+	}
 	return nil
 }
 
@@ -66,13 +74,15 @@ func (timedKeys *TimedKeys) Verify(pre string, k string) *AccountStruct.User {
 
 	key := pre + "-" + k
 
-	user, ok := timedKeys.Map[key]
+	tempUser, ok := timedKeys.Map[key]
 	if ok {
-		return user
+
+		return &tempUser.User
 	}
 
 	for key, u := range timedKeys.Map {
-		if user.Username == u.Username || user.Email == u.Email {
+		user := tempUser.User
+		if user.Username == u.User.Username || user.Email == u.User.Email {
 			delete(timedKeys.Map, key)
 		}
 	}

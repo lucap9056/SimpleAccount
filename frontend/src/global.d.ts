@@ -14,9 +14,7 @@ declare type User = {
     id?: number
     name?: string
     email?: string
-}
-
-declare type Playload = {
-    user: User
-    iat: number
+    lastEditTime?: number
+    createTime?: number
+    deletedTime?: number
 }

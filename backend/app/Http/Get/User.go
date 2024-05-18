@@ -12,14 +12,20 @@ func User(context *Message.Context) (string, int, error) {
 	}
 
 	author := context.Author
-	if author.User != nil {
 
-		bytes, err := json.Marshal(author.User)
-		if err != nil {
-			return "", Error.SYSTEM, nil
-		}
-		return string(bytes), Error.NULL, nil
+	user, errCode, err := context.Database.GetUser(author.User.Id)
+	if errCode != Error.NULL {
+		return "", errCode, err
 	}
 
-	return "", Error.NOT_LOGGED_IN, nil
+	if author.User.LastEditTime.Unix() != user.LastEditTime.Unix() {
+		author.InvaildToken()
+		return "", Error.USER_DATA_EDITED, nil
+	}
+
+	bytes, err := json.Marshal(user)
+	if err != nil {
+		return "", Error.SYSTEM, nil
+	}
+	return string(bytes), Error.NULL, nil
 }

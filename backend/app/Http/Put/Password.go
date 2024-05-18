@@ -29,7 +29,7 @@ func Password(context *Message.Context) (int, error) {
 	newPassword := requestUser.NewPassword
 
 	connect := context.Database.Connect()
-	query := "SELECT id,username,email,salt,hash FROM User WHERE id=?"
+	query := "SELECT id,salt,hash FROM User WHERE id=?"
 	rows, err := connect.Query(query, author.Id)
 	if err != nil {
 		return Error.SYSTEM, err
@@ -37,7 +37,7 @@ func Password(context *Message.Context) (int, error) {
 
 	var user AccountStruct.User
 	if rows.Next() {
-		err := rows.Scan(&user.Id, &user.Username, &user.Email, &user.Salt, &user.Hash)
+		err := rows.Scan(&user.Id, &user.Salt, &user.Hash)
 		if err != nil {
 			return Error.SYSTEM, err
 		}
@@ -53,10 +53,21 @@ func Password(context *Message.Context) (int, error) {
 	newSalt := Auths.Salt()
 	newHash := Auths.Hash(newSalt, newPassword)
 
-	updateQuery := "UPDATE User SET salt=?,hash=? WHERE id=?"
+	updateQuery := "UPDATE User SET salt=?,hash=?,last_edit=CURRENT_TIMESTAMP() WHERE id=?"
 	_, err = connect.Exec(updateQuery, newSalt, newHash, user.Id)
 	if err != nil {
 		return Error.SYSTEM, nil
+	}
+	context.Auth.Cache.ClearUser(user.Id)
+
+	newUser, errCode, err := context.Database.GetUser(user.Id)
+	if errCode != Error.NULL {
+		return Error.SYSTEM, err
+	}
+
+	errCode, err = context.Author.GenerateToken(&newUser, context.Auth)
+	if errCode != Error.NULL {
+		return errCode, err
 	}
 
 	return Error.NULL, nil
