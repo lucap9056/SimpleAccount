@@ -94,7 +94,7 @@ func (auth *Auth) DecodeToken(jwtStr string) (*Signature, int, error) {
 		return nil, Error.AUTHORIZATION_INVALID, err
 	}
 	signDecoded, errCode, err := auth.RsaDecode(head.KeyID, signEncoded)
-	if err != nil {
+	if errCode != Error.NULL {
 		return nil, errCode, err
 	}
 

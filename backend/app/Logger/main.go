@@ -13,6 +13,11 @@ type Manager struct {
 }
 
 func New(logsPath string) (*Manager, error) {
+	if _, err := os.Stat(logsPath); os.IsNotExist(err) {
+		if err := os.Mkdir(logsPath, 0644); err != nil {
+			return nil, err
+		}
+	}
 
 	infoPath := filepath.Join(logsPath, "info.log")
 	infoLogger, err := NewLogger(infoPath)

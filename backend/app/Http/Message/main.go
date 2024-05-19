@@ -9,6 +9,7 @@ import (
 	"simple_account/app/Email"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Author"
+	"simple_account/app/Http/Url"
 	"simple_account/app/Logger"
 )
 
@@ -26,6 +27,7 @@ type Context struct {
 	Request  *http.Request
 	Email    *Email.Manager
 	Logs     *Logger.Manager
+	Url      *Url.Url
 }
 
 func (ctx *Context) ResquestBody() (*UserData, int, error) {

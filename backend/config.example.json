@@ -1,6 +1,8 @@
 {
     "listen_port": 80,
     "logs_dir_path": "logs",
+    "extension_channel_enable": false,
+    "//": "extension channel path: www.example.com/private/",
     "database": {
         "source": "user:password@tcp(host:port)/Database",
         "//": ""
@@ -11,6 +13,7 @@
         "user": "user@example.com",
         "password": "password",
         "api_host": "www.example.com",
+        "//": "default path: www.example.com/api/*",
         "template_files_path": "html",
         "verification_duration": 5,
         "//": "^ duration x Minutes"

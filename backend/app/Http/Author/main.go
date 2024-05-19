@@ -97,8 +97,8 @@ func Get(auth *Auths.Auth, writer http.ResponseWriter, request *http.Request) *A
 	token := request.Header.Get("Authorization")
 
 	if strings.Contains(token, ".") {
-		sign, _, err := auth.DecodeToken(token)
-		if err != nil {
+		sign, errCode, _ := auth.DecodeToken(token)
+		if errCode != Error.NULL {
 			author.InvaildToken()
 			return author
 		}

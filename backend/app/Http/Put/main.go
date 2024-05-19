@@ -5,19 +5,17 @@ import (
 	"net/http"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Message"
-	"simple_account/app/Http/Url"
 )
 
 func Handler(context *Message.Context) {
-	url := Url.New(context.Request.URL)
 
 	var result string
 	var errCode int
 	var err error
 
-	switch url.Shift() {
+	switch context.Url.Shift() {
 	case "user":
-		switch url.Shift() {
+		switch context.Url.Shift() {
 		case "username":
 			errCode, err = Username(context)
 		case "email":

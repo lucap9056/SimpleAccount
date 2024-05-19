@@ -5,8 +5,9 @@ import (
 	"simple_account/app/Http/Message"
 )
 
-func RegisterVerify(context *Message.Context, verifyKey string) (int, error) {
+func RegisterVerify(context *Message.Context) (int, error) {
 	db := context.Database
+	verifyKey := context.Url.Shift()
 	userData := context.Email.TimedKeys.Verify("register", verifyKey)
 	if userData == nil {
 		return Error.REGISTER_VERIFY_USER_NOT_EXIST, nil

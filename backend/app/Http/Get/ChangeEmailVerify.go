@@ -5,12 +5,13 @@ import (
 	"simple_account/app/Http/Message"
 )
 
-func ChangeEmailVerify(context *Message.Context, verifyKey string) (int, error) {
+func ChangeEmailVerify(context *Message.Context) (int, error) {
 	if context.Author.User == nil {
 		return Error.NOT_LOGGED_IN, nil
 	}
 
 	db := context.Database
+	verifyKey := context.Url.Shift()
 	user := context.Email.TimedKeys.Verify("change_email", verifyKey)
 	if user == nil {
 		return Error.EMAIL_VERIFY_NOT_EXIST, nil
