@@ -35,11 +35,11 @@
             if (res.success) {
                 Cancel();
                 alertManager.Add(
-                    Translations.Get("index_change_success"),
+                    $Translations.index_change_success,
                     Alert.Type.Normal,
                 );
             } else {
-                alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                alertManager.Add($Translations[res.error], Alert.Type.Error);
             }
             loading.Remove();
         });
@@ -47,11 +47,11 @@
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
-    <h2>{Translations.Get("index_change_password")}</h2>
+    <h2>{$Translations.index_change_password}</h2>
 
     <div class="form-group">
         <label for="current_password">
-            {Translations.Get("index_change_current_password")}
+            {$Translations.index_change_current_password}
         </label>
         <div class="input" data-type="current_password">
             <input
@@ -65,7 +65,7 @@
 
     <div class="form-group">
         <label for="new_password">
-            {Translations.Get("index_change_new_password")}
+            {$Translations.index_change_new_password}
         </label>
         <div class="input" data-type="new_password">
             <input
@@ -79,14 +79,14 @@
             {/if}
 
             <div class="limit">
-                {Translations.Get("register_password_limit")}
+                {$Translations.register_password_limit}
             </div>
         </div>
     </div>
 
     <div class="form-group">
         <label for="retype_password">
-            {Translations.Get("index_change_retype_password")}
+            {$Translations.index_change_retype_password}
         </label>
         <div class="input" data-type="retype_password">
             <input
@@ -104,10 +104,10 @@
 
     <div class="form-group options">
         <button type="button" on:click={Cancel}>
-            {Translations.Get("index_edit_cancel")}
+            {$Translations.index_edit_cancel}
         </button>
         <button type="submit">
-            {Translations.Get("index_edit_confirm")}
+            {$Translations.index_edit_confirm}
         </button>
     </div>
 </form>

@@ -34,13 +34,13 @@
     API.Register(username, email, password).then((res) => {
       if (res.success) {
         alertManager.Add(
-          Translations.Get("register_email_verification"),
+          $Translations.register_email_verification,
           Alert.Type.Alert,
           async () => router.Set(Routes.LOGIN),
-          Translations.Get("register_confirm"),
+          $Translations.register_confirm,
         );
       } else {
-        alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+        alertManager.Add($Translations[res.error], Alert.Type.Error);
       }
       loading.Remove();
     });
@@ -49,10 +49,10 @@
 
 <div class="container">
   <form on:submit|preventDefault={handleSubmit}>
-    <h2>{Translations.Get("register")}</h2>
+    <h2>{$Translations.register}</h2>
 
     <div class="form-group">
-      <label for="username">{Translations.Get("register_username")}</label>
+      <label for="username">{$Translations.register_username}</label>
 
       <div class="input" data-type="username">
         <input type="text" id="username" bind:value={username} required />
@@ -60,13 +60,13 @@
           <div class="input_alert">{usernameFailed}</div>
         {/if}
         <div class="limit">
-          {Translations.Get("register_username_limit")}
+          {$Translations.register_username_limit}
         </div>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="email">{Translations.Get("register_email")}</label>
+      <label for="email">{$Translations.register_email}</label>
 
       <div class="input" data-type="email">
         <input type="text" id="email" bind:value={email} required />
@@ -77,7 +77,7 @@
     </div>
 
     <div class="form-group">
-      <label for="password">{Translations.Get("register_password")}</label>
+      <label for="password">{$Translations.register_password}</label>
 
       <div class="input" data-type="password">
         <input type="password" id="password" bind:value={password} required />
@@ -85,14 +85,14 @@
           <div class="input_alert">{passwordFailed}</div>
         {/if}
         <div class="limit">
-          {Translations.Get("register_password_limit")}
+          {$Translations.register_password_limit}
         </div>
       </div>
     </div>
 
     <div class="form-group">
       <label for="retype_password">
-        {Translations.Get("register_retype_password")}
+        {$Translations.register_retype_password}
       </label>
 
       <div class="input" data-type="retype_password">
@@ -109,10 +109,10 @@
     </div>
 
     <div class="form-group">
-      <button type="submit">{Translations.Get("register")}</button>
+      <button type="submit">{$Translations.register}</button>
     </div>
   </form>
-  <a href="/#login"><span>{Translations.Get("login")}</span></a>
+  <a href="/#login"><span>{$Translations.login}</span></a>
 </div>
 
 <style>

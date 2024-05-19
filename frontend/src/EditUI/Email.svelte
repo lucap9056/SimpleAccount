@@ -37,11 +37,11 @@
         API.VerifyEmailOwner().then((res) => {
             if (res.success) {
                 alertManager.Add(
-                    Translations.Get("index_change_verification_email_owner"),
+                    $Translations.index_change_verification_email_owner,
                     Alert.Type.Alert,
                 );
             } else {
-                alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                alertManager.Add($Translations[res.error], Alert.Type.Error);
             }
             loading.Remove();
         });
@@ -58,11 +58,11 @@
             if (res.success) {
                 Cancel();
                 alertManager.Add(
-                    Translations.Get("index_change_success"),
+                    $Translations.index_change_success,
                     Alert.Type.Normal,
                 );
             } else {
-                alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                alertManager.Add($Translations[res.error], Alert.Type.Error);
             }
             loading.Remove();
         });
@@ -70,11 +70,11 @@
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
-    <h2>{Translations.Get("index_change_email")}</h2>
+    <h2>{$Translations.index_change_email}</h2>
 
     <div class="form-group">
         <label for="verification">
-            {Translations.Get("index_change_verify_old_email_address")}
+            {$Translations.index_change_verify_old_email_address}
         </label>
         <div class="input" data-type="verification_code">
             <input
@@ -84,11 +84,9 @@
                 required
             /><button type="button" on:click={GetVerificationCode}>
                 {#if againCountDown == 0}
-                    {Translations.Get("index_change_email_send_verification")}
+                    {$Translations.index_change_email_send_verification}
                 {:else}
-                    {Translations.Get(
-                        "index_change_email_again_count_down",
-                    )}{againCountDown}s
+                    {$Translations.index_change_email_again_count_down}{againCountDown}s
                 {/if}
             </button>
         </div>
@@ -96,7 +94,7 @@
 
     <div class="form-group">
         <label for="new_email">
-            {Translations.Get("index_change_new_email_address")}
+            {$Translations.index_change_new_email_address}
         </label>
 
         <div class="input">
@@ -109,10 +107,10 @@
     </div>
     <div class="form-group options">
         <button type="button" on:click={Cancel}>
-            {Translations.Get("index_edit_cancel")}
+            {$Translations.index_edit_cancel}
         </button>
         <button type="submit">
-            {Translations.Get("index_edit_confirm")}
+            {$Translations.index_edit_confirm}
         </button>
     </div>
 </form>
