@@ -29,11 +29,11 @@
             if (res.success) {
                 Cancel();
                 alertManager.Add(
-                    Translations.Get("index_change_success"),
+                    $Translations.index_change_success,
                     Alert.Type.Normal,
                 );
             } else {
-                alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                alertManager.Add($Translations[res.error], Alert.Type.Error);
             }
             loading.Remove();
         });
@@ -41,25 +41,23 @@
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
-    <h2>{Translations.Get("index_change_username")}</h2>
+    <h2>{$Translations.index_change_username}</h2>
 
     <div class="form-group">
-        <label for="username">{Translations.Get("register_username")}</label>
+        <label for="username">{$Translations.register_username}</label>
         <div class="input" data-type="username">
             <input type="text" id="username" bind:value={username} required />
             {#if username != "" && usernameFailed !== ""}
                 <div class="input_alert">{usernameFailed}</div>
             {/if}
             <div class="limit">
-                {Translations.Get("register_username_limit")}
+                {$Translations.register_username_limit}
             </div>
         </div>
     </div>
 
     <div class="form-group">
-        <label for="password"
-            >{Translations.Get("index_current_password")}</label
-        >
+        <label for="password">{$Translations.index_current_password}</label>
 
         <div class="input" data-type="password">
             <input
@@ -72,10 +70,10 @@
     </div>
     <div class="form-group options">
         <button type="button" on:click={Cancel}>
-            {Translations.Get("index_edit_cancel")}
+            {$Translations.index_edit_cancel}
         </button>
         <button type="submit">
-            {Translations.Get("index_edit_confirm")}
+            {$Translations.index_edit_confirm}
         </button>
     </div>
 </form>

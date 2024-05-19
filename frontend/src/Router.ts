@@ -2,7 +2,7 @@ import { writable, type Writable } from "svelte/store";
 import API from "./API";
 import { Alert, alertManager } from "./Alert/Struct";
 import Loading from "./Loading/Main"
-import Translations from "./Translations";
+import Translations, { TranslationsGet } from "./Translations";
 import Status from "./Status";
 import loadings from "./Loading/Main";
 
@@ -80,13 +80,13 @@ export const router = new class {
                         const res = await API.VerifyRegister(id)
                         if (res.success) {
                             alertManager.Add(
-                                Translations.Get("register_success"),
+                                TranslationsGet("register_success"),
                                 Alert.Type.Alert,
                                 null,
-                                Translations.Get("register_confirm"),
+                                TranslationsGet("register_confirm"),
                             );
                         } else {
-                            alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                            alertManager.Add(TranslationsGet(res.error), Alert.Type.Error);
                         }
 
                         Set(Routes.LOGIN);
@@ -107,13 +107,13 @@ export const router = new class {
                         const res = await API.VerifyEmailChange(id);
                         if (res.success) {
                             alertManager.Add(
-                                Translations.Get("index_change_success"),
+                                TranslationsGet("index_change_success"),
                                 Alert.Type.Alert,
                                 null,
-                                Translations.Get("register_confirm"),
+                                TranslationsGet("register_confirm"),
                             );
                         } else {
-                            alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                            alertManager.Add(TranslationsGet(res.error), Alert.Type.Error);
                         }
 
                         Set(Routes.INDEX);

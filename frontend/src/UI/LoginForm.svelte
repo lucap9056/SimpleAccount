@@ -16,7 +16,7 @@
             if (res.success) {
                 Status.login.update(() => true);
             } else {
-                alertManager.Add(Translations.Get(res.error), Alert.Type.Error);
+                alertManager.Add($Translations[res.error], Alert.Type.Error);
             }
             loading.Remove();
         });
@@ -25,13 +25,13 @@
 
 <div class="container">
     <form on:submit|preventDefault={handleSubmit}>
-        <h2>{Translations.Get("login")}</h2>
+        <h2>{$Translations.login}</h2>
         <div class="form-group">
-            <label for="email">{Translations.Get("login_email")}</label>
+            <label for="email">{$Translations.login_email}</label>
             <input type="text" id="email" bind:value={email} required />
         </div>
         <div class="form-group">
-            <label for="password">{Translations.Get("login_password")}</label>
+            <label for="password">{$Translations.login_password}</label>
             <input
                 type="password"
                 id="password"
@@ -40,10 +40,10 @@
             />
         </div>
         <div class="form-group">
-            <button type="submit">{Translations.Get("login")}</button>
+            <button type="submit">{$Translations.login}</button>
         </div>
     </form>
-    <a href="/#register"><span>{Translations.Get("register")}</span></a>
+    <a href="/#register"><span>{$Translations.register}</span></a>
 </div>
 
 <style>

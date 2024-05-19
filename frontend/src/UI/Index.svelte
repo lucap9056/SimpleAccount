@@ -48,17 +48,17 @@
     {#if user}
         {#if !(editUsername || editEmail || editPassword)}
             <div class="user-info">
-                <h2>{Translations.Get("index_info")}</h2>
+                <h2>{$Translations.index_info}</h2>
                 <div
                     class="field"
-                    data-label={Translations.Get("index_username")}
+                    data-label={$Translations.index_username}
                 >
                     <input type="text" bind:value={user.name} readonly />
                     <button class="field_edit" on:click={EditUsername}>
                         <ion-icon name="settings-outline"></ion-icon>
                     </button>
                 </div>
-                <div class="field" data-label={Translations.Get("index_email")}>
+                <div class="field" data-label={$Translations.index_email}>
                     <input type="text" bind:value={user.email} readonly />
                     <button class="field_edit" on:click={EditEmail}>
                         <ion-icon name="settings-outline"></ion-icon>
@@ -67,7 +67,7 @@
 
                 <div class="field">
                     <button class="password_edit btn" on:click={EditPassword}>
-                        {Translations.Get("index_change_password")}
+                        {$Translations.index_change_password}
                     </button>
 
                     <button id="logout" class="btn right" on:click={logout}>
