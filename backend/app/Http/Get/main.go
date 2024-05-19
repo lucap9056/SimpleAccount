@@ -5,23 +5,21 @@ import (
 	"net/http"
 	"simple_account/app/Error"
 	"simple_account/app/Http/Message"
-	"simple_account/app/Http/Url"
 )
 
 func Handler(context *Message.Context) {
-	url := Url.New(context.Request.URL)
 
 	var result string
 	var errCode int
 	var err error
 
-	switch url.Shift() {
+	switch context.Url.Shift() {
 	case "user":
 		result, errCode, err = User(context)
 	case "email":
-		errCode, err = ChangeEmailVerify(context, url.Shift())
+		errCode, err = ChangeEmailVerify(context)
 	case "register":
-		errCode, err = RegisterVerify(context, url.Shift())
+		errCode, err = RegisterVerify(context)
 	default:
 		errCode = Error.SYSTEM_TEST
 	}

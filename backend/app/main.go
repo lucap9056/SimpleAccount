@@ -16,9 +16,10 @@ import (
 )
 
 type Config struct {
-	Port     int    `json:"listen_port"`
-	LogsPath string `json:"logs_dir_path"`
-	Database struct {
+	Port             int    `json:"listen_port"`
+	LogsPath         string `json:"logs_dir_path"`
+	ExtensionChannel bool   `json:"extension_channel_enable"`
+	Database         struct {
 		Source string `json:"source"`
 	} `json:"database"`
 	Email struct {
@@ -87,7 +88,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	server, err := Server.New(config.Port, database, email, auth, logger)
+	server, err := Server.New(config.Port, database, email, auth, logger, config.ExtensionChannel)
 	if err != nil {
 		panic(err)
 	}
