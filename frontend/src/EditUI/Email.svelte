@@ -1,22 +1,14 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import Translations from "../Translations";
     import Validate from "../ValidateInput";
     import API from "../API";
     import loadings from "../Loading/Main";
     import { Alert, alertManager } from "../Alert/Struct";
-    const dispatch = createEventDispatcher();
-    function Cancel() {
-        dispatch("cancel");
-    }
+    import Textbox from "../Components/Textbox.svelte";
+    export let Cancel: () => void;
 
     let verification = "";
     let newEmail = "";
-
-    let newEmailFalied = "";
-    $: {
-        newEmailFalied = Validate.Email(newEmail);
-    }
 
     let againCountDown = 0;
 
@@ -34,38 +26,43 @@
         }, 1000);
 
         const loading = loadings.Append();
-        API.VerifyEmailOwner().then((res) => {
-            if (res.success) {
+        API.VerifyEmailOwner()
+            .then(() => {
                 alertManager.Add(
                     $Translations.index_change_verification_email_owner,
                     Alert.Type.Alert,
+                    null,
+                    $Translations.index_edit_confirm,
                 );
-            } else {
-                alertManager.Add($Translations[res.error], Alert.Type.Error);
-            }
-            loading.Remove();
-        });
+                loading.Remove();
+            })
+            .catch((err) => {
+                alertManager.Add($Translations[err], Alert.Type.Error);
+
+                loading.Remove();
+            });
     }
 
     function handleSubmit() {
-        if (newEmailFalied != "") {
+        if (newEmail == "") {
             return;
         }
 
         const loading = loadings.Append();
 
-        API.ChangeEmail(verification, newEmail).then((res) => {
-            if (res.success) {
+        API.ChangeEmail(verification, newEmail)
+            .then(() => {
                 Cancel();
                 alertManager.Add(
-                    $Translations.index_change_success,
+                    $Translations.index_change_email_success,
                     Alert.Type.Normal,
                 );
-            } else {
-                alertManager.Add($Translations[res.error], Alert.Type.Error);
-            }
-            loading.Remove();
-        });
+                loading.Remove();
+            })
+            .catch((err) => {
+                alertManager.Add($Translations[err], Alert.Type.Error);
+                loading.Remove();
+            });
     }
 </script>
 
@@ -92,19 +89,13 @@
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="new_email">
-            {$Translations.index_change_new_email_address}
-        </label>
+    <Textbox
+        label={$Translations.index_change_new_email_address}
+        name="new_email"
+        bind:value={newEmail}
+        validate={Validate.Email}
+    />
 
-        <div class="input">
-            <input type="text" id="new_email" bind:value={newEmail} required />
-
-            {#if newEmail != "" && newEmailFalied !== ""}
-                <div class="input_alert">{newEmailFalied}</div>
-            {/if}
-        </div>
-    </div>
     <div class="form-group options">
         <button type="button" on:click={Cancel}>
             {$Translations.index_edit_cancel}
@@ -121,7 +112,7 @@
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin: 20px 0;
     }
 
     .options {
@@ -154,10 +145,6 @@
         border-radius: 5px 0 0 5px;
     }
 
-    #new_email {
-        width: 100%;
-    }
-
     button {
         width: 80px;
         padding: 10px;
@@ -177,18 +164,5 @@
 
     button:hover {
         background-color: #0056b3;
-    }
-
-    .input_alert {
-        position: absolute;
-        top: 100%;
-        white-space: nowrap;
-        height: 32px;
-        line-height: 32px;
-        padding: 0 10px;
-        background-color: #c46;
-        border-radius: 5px;
-        color: white;
-        margin: 4px;
     }
 </style>

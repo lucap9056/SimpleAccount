@@ -45,14 +45,15 @@ const _default = {
     "index_change_new_password": "New Password",
     "index_change_retype_password": "Retype Password",
     "index_change_success": "Success",
+    "index_change_check_new_email_address": "Please go to your new email inbox and click on the link to apply the changes.",
     "index_change_verification_email_owner": "Please check your email for the verification code.",
 
     "error_null": "",
     "error_server_side": "Server side error",
     "error_server_side_test": "Server side test",
-    "error_client_invalid": "Invalid request",
-    "error_username_existed": "Username existed",
-    "error_email_existed": "User email existed",
+    "error_client_invalid_request": "Invalid request",
+    "error_username_exists": "Username already exists",
+    "error_email_existed": "User email already exists",
     "error_register_verification_code_invalid": "Verification code invalid",
     "error_invalid_username": "Invalid username",
     "error_username_too_short": "Username too short",
@@ -60,19 +61,19 @@ const _default = {
     "error_invalid_email_format": "Invalid email address format",
     "error_invalid_password": "Invalid password",
     "error_password_too_short": "Password too short",
-    "error_user_not_exist": "User not exist",
-    "error_password_not_match": "Password not match",
+    "error_user_not_exist": "User does not exist",
+    "error_password_not_match": "Passwords do not match",
     "error_username_is_empty": "Username is empty",
     "error_email_is_empty": "Email Address is empty",
     "error_password_is_empty": "Password is empty",
-    "error_new_passwrod_is_empty": "New password is empty",
+    "error_new_password_is_empty": "New password is empty",
     "error_authorization_invalid": "Authorization invalid",
     "error_authorization_expired": "Authorization expired",
     "error_not_logged_in": "Not logged in",
-    "error_user_not_match": "User not match",
-    "error_email_verify_not_exist": "Email address verify not exist",
+    "error_user_not_match": "User does not match",
+    "error_email_verify_not_exist": "Email address verification does not exist",
     "error_email_verification_code_is_empty": "Email verification code is empty",
-    "error_imvalid_email_verification_key": "Verification key invalid"
+    "error_invalid_email_verification_key": "Invalid verification key"
 };
 
 let translation: Translation = _default;
@@ -93,7 +94,7 @@ fetch(`/translations/${navigator.language}.json`).then(async (res) => {
         body += decoder.decode(value, { stream: true });
     }
 
-    const Translation: Translation = JSON.parse(body);
+    const Translation: Translation = Object.assign(_default, JSON.parse(body));
     Translations.update(() => Translation);
 });
 

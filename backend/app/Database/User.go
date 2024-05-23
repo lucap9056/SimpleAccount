@@ -34,7 +34,7 @@ func (db *API) UserExist(userName string, userEmail string, filterId string) (in
 func (db *API) GetUser(userId int) (AccountStruct.User, int, error) {
 	var user AccountStruct.User
 	connect := db.Connect()
-	include := "id,username,email,salt,hash,last_edit,create_time,deleted"
+	include := "id,username,email,salt,hash,last_edit,register_time,deleted"
 	query := "SELECT " + include + " FROM User WHERE id=?"
 	rows, err := connect.Query(query, userId)
 	if err != nil {
@@ -47,7 +47,7 @@ func (db *API) GetUser(userId int) (AccountStruct.User, int, error) {
 		if err != nil {
 			return user, Error.SYSTEM, err
 		}
-		user.Convert()
+		user.MoveTempToFinal()
 		return user, Error.NULL, nil
 	}
 

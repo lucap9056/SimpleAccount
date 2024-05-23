@@ -1,10 +1,9 @@
 package Error
 
 const (
-	NULL        = 0
-	SYSTEM      = 1
-	SYSTEM_TEST = 2
-
+	NULL                   = 0
+	SYSTEM                 = 1
+	SYSTEM_TEST            = 2
 	CLIENT_INVALID_REQUEST = 6
 
 	USERNAME_EXISTED               = 11
@@ -35,4 +34,10 @@ const (
 	EMAIL_VERIFY_NOT_EXIST           = 51
 	EMAIL_VERIFICATION_CODE_IS_EMPTY = 52
 	INVALID_EMAIL_VERIFICATION_KEY   = 53
+
+	EXTENSION_SYSTEM_ERROR         = 61
+	EXTENSION_SQL_ERROR            = 62
+	EXTENSION_JSON_STRINGIFY_ERROR = 63
+	EXTENSION_INVALID_REQUEST      = 64
+	EXTENSION_USER_NOT_EXIST       = 65
 )

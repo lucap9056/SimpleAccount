@@ -11,11 +11,11 @@ type User struct {
 	Email        string     `json:"email,omitempty"`
 	Salt         string     `json:"-"`
 	Hash         string     `json:"-"`
-	LastEditTime *time.Time `json:"lastEditTime"`
+	LastEditTime *time.Time `json:"lastEditTime,omitempty"`
 	lastEditTime []uint8    `json:"-"`
-	CreateTime   *time.Time `json:"createTime"`
-	createTime   []uint8    `json:"-"`
-	DeletedTime  *time.Time `json:"deletedTime"`
+	RegisterTime *time.Time `json:"registerTime,omitempty"`
+	registerTime []uint8    `json:"-"`
+	DeletedTime  *time.Time `json:"deletedTime,omitempty"`
 	deletedTime  []uint8    `json:"-"`
 }
 
@@ -34,7 +34,7 @@ func (user *User) Empty() bool {
 		return false
 	}
 
-	if user.CreateTime != nil {
+	if user.RegisterTime != nil {
 		return false
 	}
 
@@ -58,14 +58,14 @@ func (user *User) MappingTable(args ...string) []interface{} {
 	}
 
 	tableMap := map[string]interface{}{
-		"user.id":          &user.Id,
-		"user.username":    &user.Username,
-		"user.email":       &user.Email,
-		"user.salt":        &user.Salt,
-		"user.hash":        &user.Hash,
-		"user.last_edit":   &user.lastEditTime,
-		"user.create_time": &user.createTime,
-		"user.deleted":     &user.deletedTime,
+		"user.id":            &user.Id,
+		"user.username":      &user.Username,
+		"user.email":         &user.Email,
+		"user.salt":          &user.Salt,
+		"user.hash":          &user.Hash,
+		"user.last_edit":     &user.lastEditTime,
+		"user.register_time": &user.registerTime,
+		"user.deleted":       &user.deletedTime,
 	}
 
 	var columns []interface{}
@@ -80,7 +80,7 @@ func (user *User) MappingTable(args ...string) []interface{} {
 	return columns
 }
 
-func (user *User) Convert() {
+func (user *User) MoveTempToFinal() {
 	if len(user.lastEditTime) > 0 {
 		time, err := time.Parse("2006-01-02 15:04:05", string(user.lastEditTime))
 		if err == nil {
@@ -89,12 +89,12 @@ func (user *User) Convert() {
 		user.lastEditTime = []uint8{}
 	}
 
-	if len(user.createTime) > 0 {
-		time, err := time.Parse("2006-01-02 15:04:05", string(user.createTime))
+	if len(user.registerTime) > 0 {
+		time, err := time.Parse("2006-01-02 15:04:05", string(user.registerTime))
 		if err == nil {
-			user.CreateTime = &time
+			user.RegisterTime = &time
 		}
-		user.createTime = []uint8{}
+		user.registerTime = []uint8{}
 	}
 
 	if len(user.deletedTime) > 0 {

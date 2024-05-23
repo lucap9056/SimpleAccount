@@ -5,45 +5,42 @@
   import Loading from "../Loading/Main";
   import { router, Routes } from "../Router";
   import Validate from "../ValidateInput";
+  import Textbox from "../Components/Textbox.svelte";
 
-  let username = "";
-  let email = "";
-  let password = "";
-  let retype_password = "";
-
-  let usernameFailed = "";
-  let emailFailed = "";
-  let passwordFailed = "";
-  let retype_passwordFailed = "";
-  $: {
-    usernameFailed = Validate.Username(username);
-    emailFailed = Validate.Email(email);
-    passwordFailed = Validate.Password(password);
-    retype_passwordFailed = Validate.RetypePassword(password, retype_password);
-  }
+  const data = {
+    username: "",
+    email: "",
+    password: "",
+    retype_password: "",
+  };
 
   async function handleSubmit() {
-    const disable =
-      usernameFailed !== "" || emailFailed !== "" || passwordFailed !== "";
-    if (disable) {
+    console.log(data);
+    if (
+      data.username == "" ||
+      data.email == "" ||
+      data.password == "" ||
+      data.retype_password == ""
+    ) {
       return;
     }
 
     const loading = Loading.Append();
 
-    API.Register(username, email, password).then((res) => {
-      if (res.success) {
+    API.Register(data.username, data.email, data.password)
+      .then(() => {
         alertManager.Add(
           $Translations.register_email_verification,
           Alert.Type.Alert,
           async () => router.Set(Routes.LOGIN),
           $Translations.register_confirm,
         );
-      } else {
-        alertManager.Add($Translations[res.error], Alert.Type.Error);
-      }
-      loading.Remove();
-    });
+        loading.Remove();
+      })
+      .catch((err) => {
+        alertManager.Add($Translations[err], Alert.Type.Error);
+        loading.Remove();
+      });
   }
 </script>
 
@@ -51,62 +48,38 @@
   <form on:submit|preventDefault={handleSubmit}>
     <h2>{$Translations.register}</h2>
 
-    <div class="form-group">
-      <label for="username">{$Translations.register_username}</label>
+    <Textbox
+      label={$Translations.register_username}
+      name="username"
+      bind:value={data.username}
+      validate={Validate.Username}
+      hint={$Translations.register_username_limit}
+    />
 
-      <div class="input" data-type="username">
-        <input type="text" id="username" bind:value={username} required />
-        {#if username != "" && usernameFailed !== ""}
-          <div class="input_alert">{usernameFailed}</div>
-        {/if}
-        <div class="limit">
-          {$Translations.register_username_limit}
-        </div>
-      </div>
-    </div>
+    <Textbox
+      label={$Translations.register_email}
+      name="email"
+      bind:value={data.email}
+      validate={Validate.Email}
+    />
 
-    <div class="form-group">
-      <label for="email">{$Translations.register_email}</label>
+    <Textbox
+      label={$Translations.register_password}
+      name="password"
+      password={true}
+      bind:value={data.password}
+      validate={Validate.Password}
+      hint={$Translations.register_password_limit}
+    />
 
-      <div class="input" data-type="email">
-        <input type="text" id="email" bind:value={email} required />
-        {#if email != "" && emailFailed !== ""}
-          <div class="input_alert">{emailFailed}</div>
-        {/if}
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="password">{$Translations.register_password}</label>
-
-      <div class="input" data-type="password">
-        <input type="password" id="password" bind:value={password} required />
-        {#if password != "" && passwordFailed !== ""}
-          <div class="input_alert">{passwordFailed}</div>
-        {/if}
-        <div class="limit">
-          {$Translations.register_password_limit}
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="retype_password">
-        {$Translations.register_retype_password}
-      </label>
-
-      <div class="input" data-type="retype_password">
-        <input
-          type="password"
-          id="retype_password"
-          bind:value={retype_password}
-          required
-        />
-        {#if retype_password != "" && retype_passwordFailed !== ""}
-          <div class="input_alert">{retype_passwordFailed}</div>
-        {/if}
-      </div>
-    </div>
+    <Textbox
+      label={$Translations.register_retype_password}
+      name="retype_password"
+      password={true}
+      bind:value={data.retype_password}
+      validate={(p) => Validate.RetypePassword(data.password, p)}
+      hint={$Translations.register_password_limit}
+    />
 
     <div class="form-group">
       <button type="submit">{$Translations.register}</button>
@@ -130,29 +103,7 @@
   }
 
   .form-group {
-    margin-bottom: 20px;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  .input {
-    position: relative;
-  }
-
-  input {
-    position: relative;
-  }
-
-  input[type="text"],
-  input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+    margin: 20px;
   }
 
   button {
@@ -167,25 +118,5 @@
 
   button:hover {
     background-color: #0056b3;
-  }
-
-  .limit {
-    font-size: 12px;
-    color: #999;
-    user-select: none;
-    text-align: left;
-  }
-
-  .input_alert {
-    position: absolute;
-    top: 100%;
-    white-space: nowrap;
-    height: 32px;
-    line-height: 32px;
-    padding: 0 10px;
-    background-color: #c46;
-    border-radius: 5px;
-    color: white;
-    margin: 4px;
   }
 </style>

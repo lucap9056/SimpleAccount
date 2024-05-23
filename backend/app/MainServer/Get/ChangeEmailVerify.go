@@ -6,10 +6,6 @@ import (
 )
 
 func ChangeEmailVerify(context *Message.Context) (int, error) {
-	if context.Author.User == nil {
-		return Error.NOT_LOGGED_IN, nil
-	}
-
 	db := context.Database
 	verifyKey := context.Url.Shift()
 	user := context.Email.TimedKeys.Verify("change_email", verifyKey)
@@ -18,7 +14,7 @@ func ChangeEmailVerify(context *Message.Context) (int, error) {
 	}
 
 	connect := db.Connect()
-	query := "UPDATE User SET email=?,last_edit=CUTTENT_TIMESTAMP() WHERE id=?"
+	query := "UPDATE User SET email=?,last_edit=CURRENT_TIMESTAMP() WHERE id=?"
 	_, err := connect.Exec(query, user.Email, user.Id)
 	if err != nil {
 		return Error.SYSTEM, err
