@@ -1,8 +1,8 @@
 {
     "listen_port": 80,
     "logs_dir_path": "logs",
-    "extension_channel_enable": false,
-    "//": "extension channel path: www.example.com/private/",
+    "extension_channel_port": 81,
+    "//": "^ set 0 to disable the channel",
     "database": {
         "source": "user:password@tcp(host:port)/Database",
         "//": ""
