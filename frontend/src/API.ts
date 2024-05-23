@@ -4,9 +4,7 @@ const ErrorCode: { [key: number]: string } = {
     0: "error_null",
     1: "error_server_side",
     2: "error_system_side_test",
-
     6: "error_client_invalid_request",
-
     11: "error_username_existed",
     12: "error_email_existed",
     13: "error_register_verification_code_invalid",
@@ -16,22 +14,18 @@ const ErrorCode: { [key: number]: string } = {
     17: "error_invalid_email_format",
     18: "error_invalid_password",
     19: "error_password_too_short",
-
     21: "error_user_not_exist",
     22: "error_password_not_match",
     23: "error_user_deleted",
-
     31: "error_username_is_empty",
     32: "error_email_is_empty",
     33: "error_password_is_empty",
     34: "error_new_password_is_empty",
-
     41: "error_authorization_invalid",
     42: "error_authorization_expired",
     43: "error_not_logged_in",
     44: "error_user_not_match",
     45: "error_user_data_edited",
-
     51: "error_email_verify_not_exist",
     52: "error_email_verification_code_is_empty",
     53: "error_invalid_email_verification_key"
@@ -65,19 +59,19 @@ type RawResponseData = {
     error: number
 }
 
-export function Post(path: string, postBody?: { [key: string]: string }): Promise<ResponseData> {
+export function Post(path: string, postBody?: { [key: string]: string }): Promise<string> {
     return Request("POST", path, postBody);
 }
 
-export function Put(path: string, putBody?: { [key: string]: string }): Promise<ResponseData> {
+export function Put(path: string, putBody?: { [key: string]: string }): Promise<string> {
     return Request("PUT", path, putBody);
 }
 
-export function Get(path: string): Promise<ResponseData> {
+export function Get(path: string): Promise<string> {
     return Request("GET", path);
 }
 
-function Request(method: string, path: string, body?: { [key: string]: string }): Promise<ResponseData> {
+function Request(method: string, path: string, body?: { [key: string]: string }): Promise<string> {
     return new Promise(async (reslove, reject) => {
 
         const data = {
@@ -98,8 +92,6 @@ function Request(method: string, path: string, body?: { [key: string]: string })
             Authorization.SetToken(authorization);
         }
 
-        if (!response.ok) reject();
-
         let responseBody = "";
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -116,7 +108,12 @@ function Request(method: string, path: string, body?: { [key: string]: string })
                 result: bodyJson.result,
                 error: ErrorCode[bodyJson.error]
             }
-            reslove(responseData)
+
+            if (response.ok) {
+                reslove(responseData.result);
+            } else {
+                reject(responseData.error || responseData);
+            }
         }
         catch (err) {
             reject(err);
@@ -124,39 +121,39 @@ function Request(method: string, path: string, body?: { [key: string]: string })
     });
 }
 
-function GetMe(): Promise<ResponseData> {
+function GetMe(): Promise<string> {
     return Get(Path.USER)
 }
 
-function Login(email: string, password: string): Promise<ResponseData> {
+function Login(email: string, password: string): Promise<string> {
     return Post(Path.LOGIN, { email, password });
 }
 
-function VerifyEmailChange(key: string): Promise<ResponseData> {
+function VerifyEmailChange(key: string): Promise<string> {
     return Get(Path.EMAIL + key);
 }
 
-function VerifyEmailOwner(): Promise<ResponseData> {
+function VerifyEmailOwner(): Promise<string> {
     return Post(Path.EMAIL);
 }
 
-function Register(username: string, email: string, password: string): Promise<ResponseData> {
+function Register(username: string, email: string, password: string): Promise<string> {
     return Post(Path.REGISTER, { username, email, password });
 }
 
-function VerifyRegister(key: string): Promise<ResponseData> {
+function VerifyRegister(key: string): Promise<string> {
     return Get(Path.REGISTER + key);
 }
 
-function ChangeUsername(username: string, password: string): Promise<ResponseData> {
+function ChangeUsername(username: string, password: string): Promise<string> {
     return Put(Path.USER_USERNAME, { username, password });
 }
 
-function ChangeEmail(verificationCode: string, newEmail: string): Promise<ResponseData> {
+function ChangeEmail(verificationCode: string, newEmail: string): Promise<string> {
     return Put(Path.USER_EMAIL, { code: verificationCode, email: newEmail });
 }
 
-function ChangePassword(currentPassword: string, newPassword: string): Promise<ResponseData> {
+function ChangePassword(currentPassword: string, newPassword: string): Promise<string> {
     return Put(Path.USER_PASSWORD, { password: currentPassword, new_password: newPassword });
 }
 

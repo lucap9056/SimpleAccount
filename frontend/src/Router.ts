@@ -76,54 +76,43 @@ export const router = new class {
                     const id = hash.Shift();
                     if (id === "") break;
                     const loading = loadings.Append();
-                    try {
-                        const res = await API.VerifyRegister(id)
-                        if (res.success) {
-                            alertManager.Add(
-                                TranslationsGet("register_success"),
-                                Alert.Type.Alert,
-                                null,
-                                TranslationsGet("register_confirm"),
-                            );
-                        } else {
-                            alertManager.Add(TranslationsGet(res.error), Alert.Type.Error);
-                        }
-
+                    API.VerifyRegister(id).then(() => {
+                        alertManager.Add(
+                            TranslationsGet("register_success"),
+                            Alert.Type.Alert,
+                            null,
+                            TranslationsGet("register_confirm"),
+                        );
                         Set(Routes.LOGIN);
                         loading.Remove();
-                        return;
-                    }
-                    catch {
+                    }).catch((err) => {
+                        alertManager.Add(TranslationsGet(err), Alert.Type.Error);
+                        Set(Routes.LOGIN);
                         loading.Remove();
-                    }
-                    break;
+                    });
+
+                    return;
                 }
             case "CHANGE_EMAIL":
                 {
                     const id = hash.Shift();
                     if (id === "") break;
                     const loading = loadings.Append();
-                    try {
-                        const res = await API.VerifyEmailChange(id);
-                        if (res.success) {
-                            alertManager.Add(
-                                TranslationsGet("index_change_success"),
-                                Alert.Type.Alert,
-                                null,
-                                TranslationsGet("register_confirm"),
-                            );
-                        } else {
-                            alertManager.Add(TranslationsGet(res.error), Alert.Type.Error);
-                        }
-
+                    API.VerifyEmailChange(id).then(() => {
+                        alertManager.Add(
+                            TranslationsGet("index_change_success"),
+                            Alert.Type.Alert,
+                            null,
+                            TranslationsGet("register_confirm"),
+                        );
                         Set(Routes.INDEX);
                         loading.Remove();
-                        return;
-                    }
-                    catch {
+                    }).catch((err) => {
+                        alertManager.Add(TranslationsGet(err), Alert.Type.Error);
+                        Set(Routes.INDEX);
                         loading.Remove();
-                    }
-                    break;
+                    });
+                    return;
                 }
 
         }

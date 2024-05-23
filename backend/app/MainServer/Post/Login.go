@@ -23,7 +23,7 @@ func Login(context *Message.Context) (int, error) {
 	}
 
 	connect := context.Database.Connect()
-	include := "id,username,email,salt,hash,last_edit,create_time,deleted"
+	include := "id,username,email,salt,hash,last_edit,register_time,deleted"
 	query := "SELECT " + include + " FROM User WHERE email=?"
 	rows, err := connect.Query(query, requestUser.Email)
 	if err != nil {
@@ -37,7 +37,7 @@ func Login(context *Message.Context) (int, error) {
 		if err != nil {
 			return Error.SYSTEM, err
 		}
-		user.Convert()
+		user.MoveTempToFinal()
 
 		if Auths.Hash(user.Salt, requestUser.Password) != user.Hash {
 			return Error.PASSWORD_NOT_MATCH, nil

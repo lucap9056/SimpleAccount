@@ -8,14 +8,13 @@ import (
 	"simple_account/app/Database"
 	"simple_account/app/Email"
 	"simple_account/app/Http/Author"
-	DELETE "simple_account/app/Http/Delete"
-	"simple_account/app/Http/Extension"
-	GET "simple_account/app/Http/Get"
 	"simple_account/app/Http/Message"
-	POST "simple_account/app/Http/Post"
-	PUT "simple_account/app/Http/Put"
 	"simple_account/app/Http/Url"
 	"simple_account/app/Logger"
+	DELETE "simple_account/app/MainServer/Delete"
+	GET "simple_account/app/MainServer/Get"
+	POST "simple_account/app/MainServer/Post"
+	PUT "simple_account/app/MainServer/Put"
 )
 
 type API struct {
@@ -26,31 +25,19 @@ type API struct {
 	Logs   *Logger.Manager
 }
 
-func New(port int, databaseConfig Database.Config, emailConfig Email.Config, auth *Auths.Auth, logs *Logger.Manager, extensionChannel bool) (*API, error) {
+func New(port int, db *Database.API, email *Email.Manager, auth *Auths.Auth, logs *Logger.Manager) (*API, error) {
 	api := API{}
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/api/", api.MainHandler)
-
-	if extensionChannel {
-		mux.HandleFunc("/extension/", api.ExtensionHandler)
-	}
 
 	api.Server = http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
 	}
 
-	DB, err := Database.New(&databaseConfig)
-	if err != nil {
-		return nil, err
-	}
-	api.DB = DB
+	api.DB = db
 
-	email, err := Email.New(emailConfig)
-	if err != nil {
-		return nil, err
-	}
 	api.Email = email
 
 	api.Auth = auth
@@ -86,28 +73,6 @@ func (api *API) MainHandler(writer http.ResponseWriter, req *http.Request) {
 		PUT.Handler(ctx)
 	case http.MethodDelete:
 		DELETE.Handler(ctx)
-	}
-}
-
-func (api *API) ExtensionHandler(writer http.ResponseWriter, req *http.Request) {
-	url := Url.New(req.URL)
-	url.Shift()
-
-	ctx := &Message.Context{
-		Database: api.DB,
-		Auth:     api.Auth,
-		Writer:   writer,
-		Request:  req,
-		Logs:     api.Logs,
-		Url:      &url,
-	}
-
-	switch req.Method {
-	case http.MethodPost:
-		switch url.Shift() {
-		case "get_user":
-			Extension.GetUser(ctx)
-		}
 	}
 }
 

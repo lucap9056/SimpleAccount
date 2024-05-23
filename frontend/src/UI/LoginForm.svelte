@@ -4,41 +4,44 @@
     import Translations from "../Translations";
     import API from "../API";
     import loadings from "../Loading/Main";
-    import { Routes, router } from "../Router";
     import Status from "../Status";
+    import Textbox from "../Components/Textbox.svelte";
+    import { Routes, router } from "../Router";
 
     let email = "";
     let password = "";
 
     async function handleSubmit() {
         const loading = loadings.Append();
-        API.Login(email, password).then((res) => {
-            if (res.success) {
+        API.Login(email, password)
+            .then(() => {
                 Status.login.update(() => true);
-            } else {
-                alertManager.Add($Translations[res.error], Alert.Type.Error);
-            }
-            loading.Remove();
-        });
+                router.Set(Routes.INDEX);
+                loading.Remove();
+            })
+            .catch((err) => {
+                alertManager.Add($Translations[err], Alert.Type.Error);
+                loading.Remove();
+            });
     }
 </script>
 
 <div class="container">
     <form on:submit|preventDefault={handleSubmit}>
         <h2>{$Translations.login}</h2>
-        <div class="form-group">
-            <label for="email">{$Translations.login_email}</label>
-            <input type="text" id="email" bind:value={email} required />
-        </div>
-        <div class="form-group">
-            <label for="password">{$Translations.login_password}</label>
-            <input
-                type="password"
-                id="password"
-                bind:value={password}
-                required
-            />
-        </div>
+        <Textbox
+            label={$Translations.login_email}
+            name="email"
+            bind:value={email}
+        />
+
+        <Textbox
+            label={$Translations.login_password}
+            name="password"
+            password={true}
+            bind:value={password}
+        />
+
         <div class="form-group">
             <button type="submit">{$Translations.login}</button>
         </div>
@@ -61,21 +64,7 @@
     }
 
     .form-group {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-        width: 100%;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
+        margin: 20px;
     }
 
     button {

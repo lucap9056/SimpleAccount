@@ -9,17 +9,18 @@ import (
 	"simple_account/app/Auths"
 	"simple_account/app/Database"
 	"simple_account/app/Email"
-	Server "simple_account/app/Http"
+	Extension "simple_account/app/ExtensionChannel"
 	"simple_account/app/Logger"
+	Server "simple_account/app/MainServer"
 	"syscall"
 	"time"
 )
 
 type Config struct {
-	Port             int    `json:"listen_port"`
-	LogsPath         string `json:"logs_dir_path"`
-	ExtensionChannel bool   `json:"extension_channel_enable"`
-	Database         struct {
+	Port                 int    `json:"listen_port"`
+	LogsPath             string `json:"logs_dir_path"`
+	ExtensionChannelPort int    `json:"extension_channel_port"`
+	Database             struct {
 		Source string `json:"source"`
 	} `json:"database"`
 	Email struct {
@@ -59,17 +60,23 @@ func main() {
 	}
 	defer logger.Close()
 
-	database := Database.Config{
+	database, err := Database.New(&Database.Config{
 		SourceName: config.Database.Source,
+	})
+	if err != nil {
+		panic(err)
 	}
 
-	email := Email.Config{
+	email, err := Email.New(Email.Config{
 		Host:      config.Email.Host,
 		Port:      config.Email.Port,
 		User:      config.Email.User,
 		Password:  config.Email.Password,
 		ApiHost:   config.Email.ApiHost,
 		FilesPath: config.Email.FilesPath,
+	})
+	if err != nil {
+		panic(err)
 	}
 
 	auth := &Auths.Auth{
@@ -88,9 +95,18 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	server, err := Server.New(config.Port, database, email, auth, logger, config.ExtensionChannel)
+	server, err := Server.New(config.Port, database, email, auth, logger)
 	if err != nil {
 		panic(err)
+	}
+
+	if config.ExtensionChannelPort != 0 {
+		extensionChannel, err := Extension.New(config.ExtensionChannelPort, database, email, auth, logger)
+		if err != nil {
+			panic(err)
+		}
+		go extensionChannel.Start()
+		defer extensionChannel.Exit(ctx)
 	}
 
 	go server.Start()

@@ -15,6 +15,8 @@ type Url struct {
 	dirIndex int
 }
 
+type Query map[string]interface{}
+
 func New(origin *NetUrl.URL) Url {
 	url := Url{}
 	url.origin = *origin
@@ -36,10 +38,10 @@ func (url *Url) Shift() string {
 func (url *Url) queryInit() {
 	url.query = make(map[string]interface{})
 
-	query := url.origin.RawQuery
+	query, _ := NetUrl.QueryUnescape(url.origin.RawQuery)
+
 	if query != "" {
 		for _, q := range strings.Split(query, "&") {
-
 			equal := strings.LastIndex(q, "=")
 			key := args
 			value := q

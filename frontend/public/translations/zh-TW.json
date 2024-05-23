@@ -1,7 +1,6 @@
 {
     "register": "註冊",
     "login": "登入",
-    
     "register_username": "使用者名稱",
     "register_email": "電子信箱",
     "register_password": "密碼",
@@ -18,10 +17,8 @@
     "register_username_too_long": "使用者名稱不可超過24個字元",
     "register_passwords_not_match": "密碼不相同",
     "register_success": "註冊成功",
-
-    "login_Email": "電子信箱",
+    "login_email": "電子信箱",
     "login_password": "密碼",
-
     "index_info": "使用者資訊",
     "index_username": "名稱：",
     "index_email": "電子信箱：",
@@ -40,8 +37,8 @@
     "index_change_new_password": "新的密碼",
     "index_change_retype_password": "確認密碼",
     "index_change_success": "成功",
+    "index_change_check_new_email_address": "請牆網您的新電子信箱，點擊鏈接以套用變更。",
     "index_change_verification_email_owner": "驗證碼已發送，請前往您的電子郵件確認。",
-
     "error_null": "",
     "error_server_side": "伺服器錯誤",
     "error_server_side_test": "伺服器測試",
@@ -67,5 +64,5 @@
     "error_user_not_match": "使用者錯誤",
     "error_email_verify_not_exist": "驗證碼不存在",
     "error_email_verification_code_is_empty": "驗證碼為空",
-    "error_imvalid_email_verification_key": "驗證碼無效"
+    "error_invalid_email_verification_key": "驗證碼無效"
 }

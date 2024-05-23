@@ -77,13 +77,13 @@
             </div>
         {:else}
             {#if editUsername}
-                <UsernameForm on:cancel={EditCancel} />
+                <UsernameForm Cancel={EditCancel} />
             {/if}
             {#if editEmail}
-                <EmailForm on:cancel={EditCancel} />
+                <EmailForm Cancel={EditCancel} />
             {/if}
             {#if editPassword}
-                <PasswordForm on:cancel={EditCancel} />
+                <PasswordForm Cancel={EditCancel} />
             {/if}
         {/if}
     {/if}

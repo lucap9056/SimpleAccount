@@ -1,4 +1,4 @@
-package simple_account_http_put
+package simple_account_http_get
 
 import (
 	"encoding/json"
@@ -15,14 +15,11 @@ func Handler(context *Message.Context) {
 
 	switch context.Url.Shift() {
 	case "user":
-		switch context.Url.Shift() {
-		case "username":
-			errCode, err = Username(context)
-		case "email":
-			errCode, err = Email(context)
-		case "password":
-			errCode, err = Password(context)
-		}
+		result, errCode, err = User(context)
+	case "email":
+		errCode, err = ChangeEmailVerify(context)
+	case "register":
+		errCode, err = RegisterVerify(context)
 	default:
 		errCode = Error.SYSTEM_TEST
 	}
@@ -37,18 +34,20 @@ func Handler(context *Message.Context) {
 		Error:   errCode,
 	}
 
-	responseBytes, err := json.Marshal(response)
-	writer := context.Writer
-	if err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	if context.Author != nil {
+
 		context.Author.UpdateToken()
 	}
 
-	writer.WriteHeader(http.StatusOK)
-	writer.Header().Set("Content-Type", "text/json")
+	responseBytes, _ := json.Marshal(response)
+	writer := context.Writer
+
+	if response.Success {
+		writer.WriteHeader(http.StatusOK)
+	} else {
+		writer.WriteHeader(http.StatusBadRequest)
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
 	writer.Write(responseBytes)
 }

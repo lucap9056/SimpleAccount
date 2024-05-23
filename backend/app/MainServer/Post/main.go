@@ -1,4 +1,4 @@
-package simple_account_http_delete
+package simple_account_http_post
 
 import (
 	"encoding/json"
@@ -12,12 +12,15 @@ func Handler(context *Message.Context) {
 	var result string
 	var errCode int
 	var err error
-
 	switch context.Url.Shift() {
-	case "user":
-		result, errCode, err = User(context)
+	case "login":
+		errCode, err = Login(context)
+	case "register":
+		errCode, err = Register(context)
+	case "email":
+		errCode, err = EmailOwner(context)
 	default:
-		errCode = Error.SYSTEM_TEST
+		errCode = Error.CLIENT_INVALID_REQUEST
 	}
 
 	if err != nil {
@@ -30,18 +33,18 @@ func Handler(context *Message.Context) {
 		Error:   errCode,
 	}
 
-	responseBytes, err := json.Marshal(response)
-	writer := context.Writer
-	if err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	if context.Author != nil {
 		context.Author.UpdateToken()
 	}
+	responseBytes, _ := json.Marshal(response)
+	writer := context.Writer
 
-	writer.WriteHeader(http.StatusOK)
-	writer.Header().Set("Content-Type", "text/json")
+	if response.Success {
+		writer.WriteHeader(http.StatusOK)
+	} else {
+		writer.WriteHeader(http.StatusBadRequest)
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
 	writer.Write(responseBytes)
 }

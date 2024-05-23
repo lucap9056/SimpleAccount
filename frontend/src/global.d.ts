@@ -15,6 +15,6 @@ declare type User = {
     name?: string
     email?: string
     lastEditTime?: number
-    createTime?: number
+    registerTime?: number
     deletedTime?: number
 }
