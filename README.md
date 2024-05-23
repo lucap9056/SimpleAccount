@@ -1,8 +1,5 @@
 SimpleAccount 是一個由Golang編寫的基本的帳戶系統，提供用戶註冊、登入及基本帳戶管理功能。
 ## 功能
-
----
-
 ### 1. 使用者註冊
 
 使用以下資訊註冊帳戶：
@@ -27,15 +24,9 @@ SimpleAccount 是一個由Golang編寫的基本的帳戶系統，提供用戶註
 - 密碼 (password)
 
 ## 前端處理
-
----
-
 前端檔案需要透過 Nginx 或 Apache 伺服器來處理。建議使用這些伺服器來提供靜態檔案服務。
 
 ## 設定檔案 `config.json` 
-
----
-
 - `listen_port`: 伺服器監聽的port。預設為 80。
 - `logs_dir_path`: 日誌檔案的存放目錄。預設為 "logs"。
 - `extension_channel_port`: 擴充程式通道的port，請避免對外開放。設定 0 以停用此通道。預設為 81。
@@ -64,7 +55,6 @@ SimpleAccount 是一個由Golang編寫的基本的帳戶系統，提供用戶註
 - `auth.temporary_token_validity_duration`: 臨時記號的有效時間（小時）。預設為 2 小時。
 
 ## 開發環境
----
 - Ubuntu: 22.04
 - Golang: 1.21.5
 - MariaDB: 11.2.2
