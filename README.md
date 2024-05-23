@@ -53,7 +53,8 @@ SimpleAccount 是一個由Golang編寫的基本的帳戶系統，提供用戶註
 - `auth.token_validity_duration`: 記號有效期限（天）。預設為 30 天。
 - `auth.token_auto_renew_time`: 記號自動續期的時間範圍（天）。預設為最後 6 天。
 - `auth.temporary_token_validity_duration`: 臨時記號的有效時間（小時）。預設為 2 小時。
-
+## 部署
+#### [使用docker-compose ](https://github.com/lucap9056/SimpleAccount/blob/main/build/deploy.md) 
 ## 開發環境
 - Ubuntu: 22.04
 - Golang: 1.21.5
