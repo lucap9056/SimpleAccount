@@ -12,8 +12,8 @@
         "port": 587,
         "user": "user@example.com",
         "password": "password",
-        "api_host": "www.example.com",
-        "//": "default path: www.example.com/api/*",
+        "website_host": "www.example.com",
+        "//": "^ domain name of your website",
         "template_files_path": "html",
         "verification_duration": 5,
         "//": "^ duration x Minutes"

@@ -28,7 +28,7 @@ type Config struct {
 		Port                int    `json:"port"`
 		User                string `json:"user"`
 		Password            string `json:"password"`
-		ApiHost             string `json:"api_host"`
+		WebsiteHost         string `json:"website_host"`
 		FilesPath           string `json:"template_files_path"`
 		VerificationDuraion int    `json:"verification_duration"`
 	} `json:"email"`
@@ -68,12 +68,12 @@ func main() {
 	}
 
 	email, err := Email.New(Email.Config{
-		Host:      config.Email.Host,
-		Port:      config.Email.Port,
-		User:      config.Email.User,
-		Password:  config.Email.Password,
-		ApiHost:   config.Email.ApiHost,
-		FilesPath: config.Email.FilesPath,
+		Host:        config.Email.Host,
+		Port:        config.Email.Port,
+		User:        config.Email.User,
+		Password:    config.Email.Password,
+		WebsiteHost: config.Email.WebsiteHost,
+		FilesPath:   config.Email.FilesPath,
 	})
 	if err != nil {
 		panic(err)

@@ -1,4 +1,4 @@
-##Docker Compose部署
+## Docker Compose部署
 檔案結構
 ```
 │  docker-compose.yml
@@ -10,7 +10,6 @@
 │     └─ main
 ├─html //SimpleAccount 前端檔案
 │  └──index.html
-├─mysql
 └─ssl
 ```
 
@@ -29,6 +28,7 @@ services:
     working_dir: /data
     networks:
       - simple_account_api_network
+      - mysql_network
 
   simple_account_nginx:
     image: nginx
@@ -37,7 +37,6 @@ services:
       - "443:443"
     depends_on:
       - simple_account_api
-      - simple_account_api_oauth
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl/
@@ -45,21 +44,12 @@ services:
     networks:
       - simple_account_api_network
 
-  simple_account_mysql:
-    image: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: example_password
-      MYSQL_DATABASE: example_db
-      MYSQL_USER: example_user
-      MYSQL_PASSWORD: example_password
-    volumes:
-      - ./mysql:/var/lib/mysql
-    networks:
-      - simple_account_api_network
-
 networks:
   simple_account_api_network:
     name: simple_account_api_network
+  mysql_network:
+    name: mysql_network
+    external: true
 ```
 
 `nginx.conf`

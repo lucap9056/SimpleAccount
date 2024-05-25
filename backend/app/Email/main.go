@@ -29,7 +29,7 @@ type Config struct {
 	Port                int
 	User                string
 	Password            string
-	ApiHost             string
+	WebsiteHost         string
 	VerificationDuraion time.Duration
 }
 
@@ -41,7 +41,7 @@ func New(config Config) (*Manager, error) {
 		Server: server,
 		Author: config.User,
 		Auth:   auth,
-		Host:   config.ApiHost,
+		Host:   config.WebsiteHost,
 	}
 
 	registerTemplatePath := filepath.Join(config.FilesPath, "register")
