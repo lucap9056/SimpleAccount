@@ -41,7 +41,7 @@ SimpleAccount 是一個由Golang編寫的基本的帳戶系統，提供用戶註
 - `email.port`: SMTP 伺服器的埠號。預設為 587。
 - `email.user`: 發送郵件的使用者帳號。
 - `email.password`: 發送郵件的使用者密碼。
-- `email.api_host`: SimpleAccount API 主機地址。
+- `email.website_host`: SimpleAccount 網站主機地址。
 - `email.template_files_path`: 電子郵件模板檔案的存放目錄。預設為 "html"。
 - `email.verification_duration`: 驗證碼有效時間（分鐘）。預設為 5 分鐘。
 
